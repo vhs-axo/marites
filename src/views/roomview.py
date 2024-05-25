@@ -2,6 +2,8 @@ from __future__ import annotations
 from tkinter import Tk, Toplevel, Event
 from tkinter.ttk import Treeview, Style, Combobox, Button, Label, Entry, Scrollbar, Separator, Frame
 
+from views.rooms import customization_buttons
+
 class RoomOpenWindow(Tk):
     def __init__(self) -> None:
         super().__init__()
@@ -29,10 +31,12 @@ class RoomOpenWindow(Tk):
         self.lease_deposit_label = Label(master=self.lease_payment_frame, text="Deposit: [Amount]")
         self.lease_rent_label = Label(master=self.lease_payment_frame, text="Rent: [Amount]")
         self.leaser_label = Label(master=self.lease_payment_frame, text="Leaser: [Name]")
+        
+        self.filler_label = Label(master=self.room_tenant_frame, text=" ")
     
     def __init_treeviews(self) -> None:
         self.tenants_treeview = Treeview(
-            master=self,
+            master=self.room_tenant_frame,
             columns=("tenant_name", "contact_number", "birth_date"),
             show="headings",
             selectmode="browse"
@@ -43,7 +47,7 @@ class RoomOpenWindow(Tk):
         self.tenants_treeview.heading(column="birth_date", text="Birth Date", anchor="w")
         
         self.payments_treeview = Treeview(
-            master=self,
+            master=self.lease_payment_frame,
             columns=("payment_date", "payment_amount", "status"),
             show="headings",
             selectmode="browse"
@@ -58,22 +62,22 @@ class RoomOpenWindow(Tk):
     
     def __init_scrollbars(self) -> None:
         self.tenants_scrollbar = Scrollbar(
-            self, 
+            master=self.room_tenant_frame, 
             orient="vertical", 
             command=self.tenants_treeview.yview
         )
         
         self.payments_scrollbar = Scrollbar(
-            self, 
+            master=self.lease_payment_frame, 
             orient="vertical", 
             command=self.payments_treeview.yview
         )
     
     def __init_buttons(self) -> None:
-        self.edit_room_button = Button(master=self, text="Edit Room")
-        self.add_tenant_button = Button(master=self, text="Add Tenant")
-        self.add_lease_button = Button(master=self, text="Add Lease")
-        self.add_payment_button = Button(master=self, text="Add Payment")
+        self.edit_room_button = Button(master=self.room_tenant_frame, text="Edit Room")
+        self.add_tenant_button = Button(master=self.room_tenant_frame, text="Add Tenant")
+        self.add_lease_button = Button(master=self.lease_payment_frame, text="Add Lease")
+        self.add_payment_button = Button(master=self.lease_payment_frame, text="Add Payment")
         
         self.edit_tenant_button = Button(master=self.tenants_treeview, text="Edit")
         self.delete_tenant_button = Button(master=self.tenants_treeview, text="Delete")
@@ -82,12 +86,21 @@ class RoomOpenWindow(Tk):
         self.delete_payment_button = Button(master=self.payments_treeview, text="Delete")
     
     def __init_separators(self) -> None:
-        self.room_tenant_separator = Separator(master=self)
-        self.tenant_lease_separator = Separator(master=self)
-        self.lease_payment_separator = Separator(master=self)
+        self.room_tenant_separator = Separator(master=self.room_tenant_frame)
+        self.lease_payment_separator = Separator(master=self.lease_payment_frame)
     
     def __set_layout(self) -> None:
-        self.columnconfigure(1, weight=0, minsize=5)
+        self.room_tenant_frame.grid(
+            row=0, column=0, rowspan=1, columnspan=1,
+            sticky="nsew", padx=(0, 14), pady=0
+        )
+        self.lease_payment_frame.grid(
+            row=0, column=1, rowspan=1, columnspan=1,
+            sticky="nsew", padx=(14, 0), pady=0
+        )
+        
+        self.room_tenant_frame.columnconfigure(1, weight=0, minsize=5)
+        self.lease_payment_frame.columnconfigure(1, weight=0, minsize=5)
         
         self.room_number_label.grid(
             row=0, column=0, rowspan=1, columnspan=1,
@@ -99,56 +112,80 @@ class RoomOpenWindow(Tk):
         )
         self.max_capacity_label.grid(
             row=2, column=0, rowspan=1, columnspan=1,
-            sticky="w", padx=(7, 7), pady=(0, 7)
+            sticky="w", padx=7, pady=0
+        )
+        self.filler_label.grid(
+            row=3, column=0, rowspan=1, columnspan=1,
+            sticky="w", padx=7, pady=(0, 7)
         )
         self.edit_room_button.grid(
-            row=3, column=0, rowspan=1, columnspan=1,
-            sticky="w", padx=(7, 7), pady=(0, 7)
+            row=4, column=0, rowspan=1, columnspan=1,
+            sticky="w", padx=7, pady=(0, 7)
         )
         
         self.room_tenant_separator.grid(
-            row=4, column=0, rowspan=1, columnspan=2,
+            row=5, column=0, rowspan=1, columnspan=2,
             sticky="ew", padx=(7, 7), pady=(0, 7)
         )
         
         self.tenants_treeview.grid(
-            row=5, column=0, rowspan=1, columnspan=1,
+            row=6, column=0, rowspan=1, columnspan=1,
             sticky="nsew", padx=(7, 0), pady=(0, 7)
         )
         self.tenants_scrollbar.grid(
-            row=5, column=1, rowspan=1, columnspan=1,
+            row=6, column=1, rowspan=1, columnspan=1,
             sticky="nsew", padx=(0, 7), pady=(0, 7)
         )
+        
         self.add_tenant_button.grid(
-            row=6, column=0, rowspan=1, columnspan=2,
+            row=7, column=0, rowspan=1, columnspan=2,
             sticky="nsew", padx=(7, 7), pady=(0, 7)
         )
         
-        self.tenant_lease_separator.grid(
-            row=7, column=0, rowspan=1, columnspan=2,
-            sticky="ew", padx=(7, 7), pady=(0, 7)
-        )
-        
         self.lease_start_label.grid(
-            row=8, column=0, rowspan=1, columnspan=1,
-            sticky="w", padx=7, pady=0
+            row=0, column=0, rowspan=1, columnspan=1,
+            sticky="w", padx=7, pady=(7, 0)
         )
         self.lease_end_label.grid(
-            row=9, column=0, rowspan=1, columnspan=1,
+            row=1, column=0, rowspan=1, columnspan=1,
             sticky="w", padx=7, pady=0
         )
         self.lease_deposit_label.grid(
-            row=10, column=0, rowspan=1, columnspan=1,
+            row=2, column=0, rowspan=1, columnspan=1,
             sticky="w", padx=7, pady=0
         )
         self.leaser_label.grid(
-            row=11, column=0, rowspan=1, columnspan=1,
-            sticky="w", padx=7, pady=0
+            row=3, column=0, rowspan=1, columnspan=1,
+            sticky="w", padx=7, pady=(0, 7)
         )
-        self.lease_start_label.grid(
-            row=12, column=0, rowspan=1, columnspan=1,
-            sticky="w", padx=7, pady=0
+        self.add_lease_button.grid(
+            row=4, column=0, rowspan=1, columnspan=1,
+            sticky="w", padx=7, pady=(0, 7)
         )
+        
+        self.lease_payment_separator.grid(
+            row=5, column=0, rowspan=1, columnspan=2,
+            sticky="nsew", padx=(7, 7), pady=(0, 7)
+        )
+        
+        self.payments_treeview.grid(
+            row=6, column=0, rowspan=1, columnspan=1,
+            sticky="nsew", padx=(7, 0), pady=(0, 7)
+        )
+        self.payments_scrollbar.grid(
+            row=6, column=1, rowspan=1, columnspan=1,
+            sticky="nsew", padx=(0, 7), pady=(0, 7)
+        )
+        self.add_payment_button.grid(
+            row=7, column=0, rowspan=1, columnspan=2,
+            sticky="nsew", padx=(7, 7), pady=(0, 7)
+        )
+        
+        self.tenants_treeview.configure(yscrollcommand=self.tenants_scrollbar.set)
+        self.payments_treeview.configure(yscrollcommand=self.payments_scrollbar.set)
+        
+        customization_buttons(self.tenants_treeview, self.edit_tenant_button, self.delete_tenant_button)
+        customization_buttons(self.payments_treeview, self.edit_payment_button, self.delete_payment_button)        
 
 def main() -> None:
    RoomOpenWindow().mainloop()
