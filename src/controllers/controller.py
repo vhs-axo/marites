@@ -100,10 +100,10 @@ class RoomFormController:
     
     def set_validations(self) -> None:
         self.window.max_capacity_entry.configure(
-            validate='key', 
+            validate="key", 
             validatecommand=(
                 self.window.register(lambda change: change.isdigit() or change == ""), 
-                '%S'
+                "%S"
             )
         )
     
@@ -276,7 +276,6 @@ class RoomOpenController:
     def close(self) -> None:
         self.window.destroy()
         self.parent.window.deiconify()
-        
     
 class TenantFormController:
     def __init__(
@@ -289,20 +288,69 @@ class TenantFormController:
         self.window = window
         self.tenant = tenant
         
-        if not tenant:
-            self.load_data()
+        self.set_validations()
+        self.set_formatters()
+        self.set_actions()
         
-    def load_data(self) -> None:
-        ...
+        if self.tenant:
+            self.load_data()
     
     def set_validations(self) -> None:
-        ...
+        self.window.lastname_entry.configure(
+            validate="key", 
+            validatecommand=(
+                self.window.register(lambda change: change.isalpha() or change == ""), 
+                "%S"
+            )
+        )
+        self.window.firstname_entry.configure(
+            validate="key", 
+            validatecommand=(
+                self.window.register(lambda change: change.isalpha() or change == ""), 
+                "%S"
+            )
+        )
+        self.window.middlename_entry.configure(
+            validate="key", 
+            validatecommand=(
+                self.window.register(lambda change: change.isalpha() or change == ""), 
+                "%S"
+            )
+        )
+        self.window.contactnumber_entry.configure(
+            validate="key", 
+            validatecommand=(
+                self.window.register(lambda change: change.isdigit() or change == ""), 
+                "%S"
+            )
+        )
     
     def set_formatters(self) -> None:
-        ...
+        lname_var = StringVar()
+        fname_var = StringVar()
+        mname_var = StringVar()
+        contc_var = StringVar()
+        
+        self.window.lastname_entry.configure(textvariable=lname_var)
+        self.window.firstname_entry.configure(textvariable=fname_var)
+        self.window.middlename_entry.configure(textvariable=mname_var)
+        self.window.contactnumber_entry.configure(textvariable=contc_var)
+        
+        lname_var.trace_add("write", lambda *_: to_uppercase(lname_var))
+        fname_var.trace_add("write", lambda *_: to_uppercase(fname_var))
+        mname_var.trace_add("write", lambda *_: to_uppercase(mname_var))
+        contc_var.trace_add("write", lambda *_: to_uppercase(contc_var))
     
     def set_actions(self) -> None:
         self.window.add_tenant_button.configure(command=self.add_tenant_pressed)
+        
+    def load_data(self) -> None:
+        if self.tenant:
+            self.window.lastname_entry.cget("textvariable").set(self.tenant.last_name)
+            self.window.firstname_entry.cget("textvariable").set(self.tenant.first_name)
+            self.window.middlename_entry.cget("textvariable").set(self.tenant.middle_name)
+            self.window.contactnumber_entry.cget("textvariable").set(self.tenant.contact_number)
+            self.window.birthdate_dateentry.set_date(self.tenant.birth_date)
     
     def add_tenant_pressed(self) -> None:
         lastname: str = self.window.lastname_entry.get().strip().upper()
@@ -367,7 +415,7 @@ class LeaseFormController:
     def populate_leaser_combobox(self) -> None:
         leasers = self.parent.manager.get_all_tenants()
         leaser_names = [f"{leaser.first_name} {leaser.last_name}" for leaser in leasers]
-        self.window.leaser_combobox['values'] = leaser_names
+        self.window.leaser_combobox["values"] = leaser_names
     
     def set_actions(self) -> None:
         self.window.add_lease_button.configure(command=self.add_lease_pressed)
@@ -405,11 +453,11 @@ class LeaseFormController:
             return
         
         lease_data = {
-            'leaser': leaser,
-            'lease_start': lease_start,
-            'lease_end': lease_end,
-            'deposit_amount': float(deposit_amount),
-            'monthly_rentAmount': float(monthly_rentAmount)
+            "leaser": leaser,
+            "lease_start": lease_start,
+            "lease_end": lease_end,
+            "deposit_amount": float(deposit_amount),
+            "monthly_rentAmount": float(monthly_rentAmount)
         }
         
         if self.lease:
