@@ -88,7 +88,7 @@ class RoomListController:
         self.manager.close_session()
 
 class RoomFormController:
-    def __init__(self, parent: RoomListController, window: RoomForm) -> None:
+    def __init__(self, parent: RoomListController, window: RoomForm, room: Room) -> None:
         self.parent = parent
         self.window = window
         
@@ -286,13 +286,13 @@ class TenantFormController:
     ) -> None:
         self.parent = parent
         self.window = window
-        self.tenant = tenant
         
         self.set_validations()
         self.set_formatters()
         self.set_actions()
         
-        if self.tenant:
+        if tenant:
+            self.tenant = tenant
             self.load_data()
     
     def set_validations(self) -> None:
@@ -345,12 +345,11 @@ class TenantFormController:
         self.window.add_tenant_button.configure(command=self.add_tenant_pressed)
         
     def load_data(self) -> None:
-        if self.tenant:
-            self.window.lastname_entry.cget("textvariable").set(self.tenant.last_name)
-            self.window.firstname_entry.cget("textvariable").set(self.tenant.first_name)
-            self.window.middlename_entry.cget("textvariable").set(self.tenant.middle_name)
-            self.window.contactnumber_entry.cget("textvariable").set(self.tenant.contact_number)
-            self.window.birthdate_dateentry.set_date(self.tenant.birth_date)
+        self.window.lastname_entry.cget("textvariable").set(self.tenant.last_name)
+        self.window.firstname_entry.cget("textvariable").set(self.tenant.first_name)
+        self.window.middlename_entry.cget("textvariable").set(self.tenant.middle_name)
+        self.window.contactnumber_entry.cget("textvariable").set(self.tenant.contact_number)
+        self.window.birthdate_dateentry.set_date(self.tenant.birth_date)
     
     def add_tenant_pressed(self) -> None:
         lastname: str = self.window.lastname_entry.get().strip().upper()
