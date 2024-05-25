@@ -70,7 +70,7 @@ class Lease(Base):
     lease_start: Mapped[date] = mapped_column("leaseStart", DATE, nullable=False)
     lease_end: Mapped[date] = mapped_column("leaseEnd", DATE, nullable=False)
     deposit_amount: Mapped[Decimal] = mapped_column("depositAmount", DECIMAL(10, 2), nullable=False)
-    monthly_rentAmount: Mapped[Decimal] = mapped_column("monthlyRentAmount", DECIMAL(10, 2), nullable=False)
+    monthly_rent_amount: Mapped[Decimal] = mapped_column("monthlyRentAmount", DECIMAL(10, 2), nullable=False)
     
     __table_args__ = (
         CheckConstraint('leaseStart < leaseEnd', name='leases_chk_leaseEnd'),
