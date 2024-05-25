@@ -1,6 +1,7 @@
 from __future__ import annotations
 from tkinter import Tk, Toplevel, Event
 from tkinter.ttk import Treeview, Style, Combobox, Button, Label, Entry, Scrollbar
+from tkcalendar import DateEntry
 
 class RoomForm(Tk):
     def __init__(self) -> None:
@@ -40,7 +41,30 @@ class RoomForm(Tk):
         self.title("")
         self.resizable(False, False)
         
-class TenantForm
+class TenantForm(Tk):
+    def __init__(self) -> None:
+        super().__init__()
+        
+        self.__init_labels()
+        self.__init_entries()
+        self.__init_buttons()
+        
+        self.__set_layout()
+    
+    def __init_labels(self) -> None:
+        pass
+    
+    def __init_entries(self) -> None:
+        pass
+    
+    def __init_buttons(self) -> None:
+        pass
+    
+    def __init_datepickers(self) -> None:
+        pass
+    
+    def __set_layout(self) -> None:
+        pass
 
 def main() -> None:
    RoomForm().mainloop()
