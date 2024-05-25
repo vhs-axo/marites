@@ -476,3 +476,67 @@ class LeaseFormController:
         self.window.destroy()
         self.parent.window.deiconify()
         self.parent.load_leases()
+
+
+class PaymentFormController:
+    def __init__(self, parent: SomeParentController, window: PaymentForm, payment: Payment = None) -> None:
+        self.parent = parent
+        self.window = window
+        self.payment = payment
+        
+        self.set_actions()
+        self.set_initial_values()
+    
+    def set_actions(self) -> None:
+        self.window.add_payment_button.configure(command=self.add_payment_pressed)
+    
+    def set_initial_values(self) -> None:
+        if self.payment:
+            self.window.payment_date_entry.set_date(self.payment.payment_date)
+            self.window.payment_amount_entry.insert(0, str(self.payment.amount))
+            self.window.paid_checkbutton.select() if self.payment.paid else self.window.paid_checkbutton.deselect()
+    
+    def add_payment_pressed(self) -> None:
+        payment_date = self.window.payment_date_entry.get_date()
+        payment_amount = self.window.payment_amount_entry.get()
+        paid = self.window.paid_checkbutton.instate(['selected'])
+
+        if not payment_date or not payment_amount:
+            messagebox.showerror(
+                title="Error",
+                message="Please fill out all the required fields."
+            )
+            return
+
+        try:
+            amount = float(payment_amount)
+        except ValueError:
+            messagebox.showerror(
+                title="Invalid Amount",
+                message="The amount entered is not a valid number."
+            )
+            return
+
+        payment_data = {
+            'payment_date': payment_date,
+            'amount': amount,
+            'paid': paid
+        }
+
+        if self.payment:
+            payment = Payment(**payment_data, payment_id=self.payment.payment_id)
+            self.parent.manager.update_payment(payment)
+            messagebox.showinfo(
+                title="Payment Updated",
+                message=f"Payment {self.payment.payment_id} successfully updated."
+            )
+        else:
+            payment = self.parent.manager.add_payment(Payment(**payment_data))
+            messagebox.showinfo(
+                title="Payment Added",
+                message=f"Payment {payment.payment_id} successfully added."
+            )
+
+        self.window.destroy()
+        self.parent.window.deiconify()
+        self.parent.load_payments()
