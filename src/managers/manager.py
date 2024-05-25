@@ -2,6 +2,7 @@ from datetime import date
 from typing import Iterable, Optional
 from models.entities import Room, Tenant, Lease, Payment
 from services.service import Session
+from sqlalchemy import asc, desc
 
 class BoardingHouseManager:
     def __init__(self, session: Session) -> None:
@@ -64,16 +65,16 @@ class BoardingHouseManager:
         return self.session.get(Payment, paymnet_id)
 
     def get_all_rooms(self) -> Iterable[Room]:
-        return self.session.query(Room).all()
+        return self.session.query(Room).order_by(asc(Room.room_number)).all()
 
     def get_all_tenants(self) -> Iterable[Tenant]:
-        return self.session.query(Tenant).all()
+        return self.session.query(Tenant).order_by(asc(Tenant.tenant_id)).all()
     
     def get_all_leases(self) -> Iterable[Lease]:
-        return self.session.query(Lease).all()
+        return self.session.query(Lease).order_by(asc(Lease.lease_id)).all()
     
     def get_all_payments(self) -> Iterable[Payment]:
-        return self.session.query(Payment).all()
+        return self.session.query(Payment).order_by(desc(Payment.payment_date)).all()
 
     def close_session(self) -> None:
         self.session.close()
