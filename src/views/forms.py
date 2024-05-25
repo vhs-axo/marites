@@ -1,6 +1,6 @@
 from __future__ import annotations
 from tkinter import Tk, Toplevel, Event
-from tkinter.ttk import Treeview, Style, Combobox, Button, Label, Entry, Scrollbar
+from tkinter.ttk import Treeview, Style, Combobox, Button, Label, Entry, Scrollbar, Checkbutton
 from tkcalendar import DateEntry
 
 class RoomForm(Tk):
@@ -208,58 +208,67 @@ class LeaseForm(Tk):
         self.title("Add Lease")
         self.resizable(False, False)
 
-class PaymentForm(Toplevel):
-    def __init__(self, parent: Tk, payment_data: dict = None) -> None:
-        super().__init__(parent)
-        self.parent = parent
-        self.payment_data = payment_data
+class PaymentForm(Tk):
+    def __init__(self) -> None:
+        super().__init__()
         
         self.__init_labels()
-        self.__init_datepickers()
         self.__init_entries()
         self.__init_buttons()
+        self.__init_checkbuttons()
         
         self.__set_layout()
         
     def __init_labels(self) -> None:
-        self.payment_date_label = Label(self, text="Lease Start Date:")
-        self.payment_amount_label = Label(self, text="Deposit Amount:")
+        self.payment_date_label = Label(master=self, text="*Payment Date")
+        self.payment_amount_label = Label(master=self, text="*Amount:")
     
     def __init_entries(self) -> None:
-        self.payment_date_entry = DateEntry(self, width=12, date_pattern="yyyy-mm-dd")
-        self.payment_amount_entry = Entry(self)
-        
-        if self.payment_data:
-            self.payment_date_entry.set_date(self.payment_date.get('payment_date', ''))
-            self.payment_amount_entry.insert(0, str(self.lease_data.get('payment_amount', '')))
-
-    
-    def __init_datepickers(self) -> None:
-        pass
+        self.payment_amount_entry = Entry(master=self)
+        self.payment_date_entry = DateEntry(master=self, date_pattern="yyyy-mm-dd")
     
     def __init_buttons(self) -> None:
-        self.save_button = Button(self, text="Save", command=self.save_payment)
-        self.cancel_button = Button(self, text="Cancel", command=self.destroy)
+        self.add_payment_button = Button(master=self, text="Add Payment")
+
+    def __init_checkbuttons(self) -> None:
+        self.paid_checkbutton = Checkbutton(master=self, text="Paid", onvalue=True, offvalue=False)
     
     def __set_layout(self) -> None:
-        self.payment_date_label.grid(row=0, column=0, padx=5, pady=5, sticky="e")
-        self.payment_date_entry.grid(row=0, column=1, padx=5, pady=5, sticky="w")
-        self.payment_amount_label.grid(row=2, column=0, padx=5, pady=5, sticky="e")
-        self.payment_amount_entry.grid(row=2, column=1, padx=5, pady=5, sticky="w")
-        self.save_button.grid(row=4, column=0, columnspan=2, padx=5, pady=5)
-        self.cancel_button.grid(row=5, column=0, columnspan=2, padx=5, pady=5)
+        self.payment_date_label.grid(
+            row=0, column=0, rowspan=1, columnspan=1,
+            sticky="sw", padx=7, pady=(7, 0)
+        )
+        self.payment_amount_label.grid(
+            row=0, column=1, rowspan=1, columnspan=1,
+            sticky="sw", padx=7, pady=(7, 0)
+        )
         
-    def save_payment(self) -> None:
-        payment_date = self.payment_date_entry.get_date()
-        payment_amount = float(self.payment_amount_entry.get())
+        self.payment_date_entry.grid(
+            row=1, column=0, rowspan=1, columnspan=1,
+            sticky="nsew", padx=7, pady=(0, 7)
+        )
+        self.payment_amount_entry.grid(
+            row=1, column=1, rowspan=1, columnspan=1,
+            sticky="nsew", padx=7, pady=(0, 7)
+        )
+        self.paid_checkbutton.grid(
+            row=1, column=2, rowspan=1, columnspan=1,
+            sticky="nsw", padx=7, pady=(0, 7)
+        )
         
-        print("Payment Date:", payment_date)
-        print("Payment Amount:", payment_amount)
-        self.destroy()
-
+        self.add_payment_button.grid(
+            row=2, column=2, rowspan=1, columnspan=1,
+            sticky="nse", padx=7, pady=7
+        )
+        
+        self.title("Add Payment")
+        self.resizable(False, False)
 
 def main() -> None:
-   LeaseForm().mainloop()
+    RoomForm().mainloop()
+    TenantForm().mainloop()
+    LeaseForm().mainloop()
+    PaymentForm().mainloop()
 
 if __name__ == "__main__":
    main()
