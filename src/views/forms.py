@@ -40,7 +40,7 @@ class RoomForm(Tk):
         self.title("")
         self.resizable(False, False)
         
-
+class TenantForm
 
 def main() -> None:
    RoomForm().mainloop()
