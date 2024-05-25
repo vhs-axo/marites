@@ -111,6 +111,9 @@ class Payment(Base):
 
     def __eq__(self, other: Payment) -> bool:
         return self.payment_id == other.payment_id
+    
+    def __str__(self) -> str:
+        return f"Payment ID: {self.payment_id} | {self.payment_date} | Amount: {self.payment_amount}"
 
 @event.listens_for(Tenant, "after_insert")
 def uppercase_names(mapper, connection, target):
