@@ -88,7 +88,7 @@ class RoomListController:
         self.manager.close_session()
 
 class RoomFormController:
-    def __init__(self, parent: RoomListController, window: RoomForm, room: Room) -> None:
+    def __init__(self, parent: RoomListController, window: RoomForm, room: Optional[Room]) -> None:
         self.parent = parent
         self.window = window
         
