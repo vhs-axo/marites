@@ -87,7 +87,7 @@ class RoomFormController:
         )
     
     def add_room_pressed(self) -> None:
-        if ((max_cap := self.window.max_capacity_entry.get()).isnumeric()):
+        if ((max_cap := self.window.max_capacity_entry.get()).isnumeric()) and int(max_cap) > 0:
             max_cap = int(max_cap)
             
             room = self.parent.manager.add_room(Room(max_capacity=max_cap))
