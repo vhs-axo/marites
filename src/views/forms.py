@@ -208,6 +208,56 @@ class LeaseForm(Tk):
         self.title("Add Lease")
         self.resizable(False, False)
 
+class PaymentForm(Toplevel):
+    def __init__(self, parent: Tk, payment_data: dict = None) -> None:
+        super().__init__(parent)
+        self.parent = parent
+        self.payment_data = payment_data
+        
+        self.__init_labels()
+        self.__init_datepickers()
+        self.__init_entries()
+        self.__init_buttons()
+        
+        self.__set_layout()
+        
+    def __init_labels(self) -> None:
+        self.payment_date_label = Label(self, text="Lease Start Date:")
+        self.payment_amount_label = Label(self, text="Deposit Amount:")
+    
+    def __init_entries(self) -> None:
+        self.payment_date_entry = DateEntry(self, width=12, date_pattern="yyyy-mm-dd")
+        self.payment_amount_entry = Entry(self)
+        
+        if self.payment_data:
+            self.payment_date_entry.set_date(self.payment_date.get('payment_date', ''))
+            self.payment_amount_entry.insert(0, str(self.lease_data.get('payment_amount', '')))
+
+    
+    def __init_datepickers(self) -> None:
+        pass
+    
+    def __init_buttons(self) -> None:
+        self.save_button = Button(self, text="Save", command=self.save_payment)
+        self.cancel_button = Button(self, text="Cancel", command=self.destroy)
+    
+    def __set_layout(self) -> None:
+        self.payment_date_label.grid(row=0, column=0, padx=5, pady=5, sticky="e")
+        self.payment_date_entry.grid(row=0, column=1, padx=5, pady=5, sticky="w")
+        self.payment_amount_label.grid(row=2, column=0, padx=5, pady=5, sticky="e")
+        self.payment_amount_entry.grid(row=2, column=1, padx=5, pady=5, sticky="w")
+        self.save_button.grid(row=4, column=0, columnspan=2, padx=5, pady=5)
+        self.cancel_button.grid(row=5, column=0, columnspan=2, padx=5, pady=5)
+        
+    def save_payment(self) -> None:
+        payment_date = self.payment_date_entry.get_date()
+        payment_amount = float(self.payment_amount_entry.get())
+        
+        print("Payment Date:", payment_date)
+        print("Payment Amount:", payment_amount)
+        self.destroy()
+
+
 def main() -> None:
    LeaseForm().mainloop()
 
