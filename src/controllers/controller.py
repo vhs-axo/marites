@@ -321,3 +321,78 @@ class TenantFormController:
                 message="Error in adding tenant. At least one of the inputs are invalid."
             )
         
+class LeaseFormController:
+    def __init__(self, parent: RoomOpenController, window: LeaseForm, lease: Lease = None) -> None:
+        self.parent = parent
+        self.window = window
+        self.lease = lease
+        
+        self.populate_leaser_combobox()
+        self.set_actions()
+        self.set_initial_values()
+    
+    def populate_leaser_combobox(self) -> None:
+        leasers = self.parent.manager.get_all_tenants()
+        leaser_names = [f"{leaser.first_name} {leaser.last_name}" for leaser in leasers]
+        self.window.leaser_combobox['values'] = leaser_names
+    
+    def set_actions(self) -> None:
+        self.window.add_lease_button.configure(command=self.add_lease_pressed)
+    
+    def set_initial_values(self) -> None:
+        if self.lease:
+            self.window.leaser_combobox.set(f"{self.lease.leaser.first_name} {self.lease.leaser.last_name}")
+            self.window.startdate_entry.set_date(self.lease.lease_start)
+            self.window.enddate_entry.set_date(self.lease.lease_end)
+            self.window.deposit_entry.insert(0, str(self.lease.deposit_amount))
+            self.window.rent_entry.insert(0, str(self.lease.monthly_rentAmount))
+    
+    def add_lease_pressed(self) -> None:
+        leaser_name = self.window.leaser_combobox.get()
+        leaser_first_name, leaser_last_name = leaser_name.split(" ", 1)
+        leaser = self.parent.manager.get_tenant_by_name(leaser_first_name, leaser_last_name)
+        
+        if not leaser:
+            messagebox.showerror(
+                title="Leaser Not Found",
+                message="Selected leaser not found. Please select a valid leaser."
+            )
+            return
+        
+        lease_start = self.window.startdate_entry.get_date()
+        lease_end = self.window.enddate_entry.get_date()
+        deposit_amount = self.window.deposit_entry.get()
+        monthly_rentAmount = self.window.rent_entry.get()
+        
+        if not (lease_start and lease_end and deposit_amount and monthly_rentAmount):
+            messagebox.showerror(
+                title="Error",
+                message="Fill out all the fields."
+            )
+            return
+        
+        lease_data = {
+            'leaser': leaser,
+            'lease_start': lease_start,
+            'lease_end': lease_end,
+            'deposit_amount': float(deposit_amount),
+            'monthly_rentAmount': float(monthly_rentAmount)
+        }
+        
+        if self.lease:
+            lease = Lease(**lease_data, lease_id=self.lease.lease_id)
+            self.parent.manager.update_lease(lease)
+            messagebox.showinfo(
+                title="Lease Updated",
+                message=f"Lease {self.lease.lease_id} successfully updated."
+            )
+        else:
+            lease = self.parent.manager.add_lease(Lease(**lease_data))
+            messagebox.showinfo(
+                title="Lease Added",
+                message=f"Lease {lease.lease_id} successfully added."
+            )
+        
+        self.window.destroy()
+        self.parent.window.deiconify()
+        self.parent.load_leases()
