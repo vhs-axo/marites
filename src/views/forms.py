@@ -14,7 +14,7 @@ class RoomForm(Tk):
         self.__set_layout()
         
     def __init_labels(self) -> None:
-        self.max_capacity_label = Label(master=self, text="Max Capacity")
+        self.max_capacity_label = Label(master=self, text="*Max Capacity")
     
     def __init_entries(self) -> None:
         self.max_capacity_entry = Entry(master=self)
@@ -47,21 +47,29 @@ class TenantForm(Tk):
         
         self.__init_labels()
         self.__init_entries()
+        self.__init_datepickers()
         self.__init_buttons()
         
         self.__set_layout()
     
     def __init_labels(self) -> None:
-        pass
+        self.lastname_label = Label(master=self, text="*Last Name")
+        self.firstname_label = Label(master=self, text="*First Name")
+        self.middlename_label = Label(master=self, text="Middle Name")
+        self.contactnumber_label = Label(master=self, text="Contact Number (09XXXXXXXXX)")
+        self.birthdate_label = Label(master=self, text="Birth Date")
     
     def __init_entries(self) -> None:
-        pass
-    
-    def __init_buttons(self) -> None:
-        pass
+        self.lastname_entry = Entry(master=self)
+        self.firstname_entry = Entry(master=self)
+        self.middlename_entry = Entry(master=self)
+        self.contactnumber_entry = Entry(master=self)
     
     def __init_datepickers(self) -> None:
-        pass
+        self.datepick_dateentry = DateEntry(master=self)
+    
+    def __init_buttons(self) -> None:
+        self.add_tenant_button = Button(master=self, text="Add Tenant")
     
     def __set_layout(self) -> None:
         pass
