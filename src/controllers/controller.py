@@ -80,3 +80,32 @@ class PaymentFormController:
             messagebox.showinfo("Success", "Payment saved successfully.")
         else:
             messagebox.showerror("Error", "Failed to save payment.")
+
+class TenantFormController:
+    def __init__(self, manager: BoardingHouseManager, parent_window: Tk) -> None:
+        self.manager = manager
+        self.parent_window = parent_window
+        self.window = TenantForm(parent_window)
+        self.window.add_tenant_button.config(command=self.add_tenant)
+        self.window.protocol("WM_DELETE_WINDOW", self.window.destroy)
+
+        last_name = self.window.lastname_entry.get()
+        first_name = self.window.firstname_entry.get()
+        middle_name = self.window.middlename_entry.get()
+        contact_number = self.window.contactnumber_entry.get()
+        birth_date = self.window.birthdate_dateentry.get_date()
+        
+        tenant_data = {
+            'last_name': last_name,
+            'first_name': first_name,
+            'middle_name': middle_name,
+            'contact_number': contact_number,
+            'birth_date': birth_date
+        }
+        result = self.manager.add_tenant(tenant_data) 
+        
+        if result:
+            messagebox.showinfo("Success", "Tenant added successfully!")
+            self.window.destroy()
+        else:
+            messagebox.showerror("Error", "Failed to add tenant!")
