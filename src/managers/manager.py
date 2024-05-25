@@ -8,21 +8,25 @@ class BoardingHouseManager:
     def __init__(self, session: Session) -> None:
         self.session = session
 
-    def add_room(self, room: Room) -> None:
+    def add_room(self, room: Room) -> Room:
         self.session.add(room)
         self.session.commit()
+        return room
 
-    def add_tenant(self, tenant: Tenant) -> None:        
+    def add_tenant(self, tenant: Tenant) -> Tenant:        
         self.session.add(tenant)
         self.session.commit()
+        return tenant
         
-    def add_lease(self, lease: Lease) -> None:
+    def add_lease(self, lease: Lease) -> Lease:
         self.session.add(lease)
         self.session.commit()
+        return lease
         
-    def add_payment(self, payment: Payment) -> None:
+    def add_payment(self, payment: Payment) -> Payment:
         self.session.add(payment)
         self.session.commit()
+        return payment
         
     def update_room(self, room: Room) -> None:
         self.session.commit()
