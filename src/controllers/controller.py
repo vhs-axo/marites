@@ -20,4 +20,23 @@ class RoomListController:
                 )
             )
     
+class LeaseFormController:
+    def __init__(self, manager: BoardingHouseManager, parent_window: Tk, lease_data: dict = None) -> None:
+        self.manager = manager
+        self.parent_window = parent_window
+        self.lease_data = lease_data
+        self.window = LeaseForm(self.parent_window, lease_data=self.lease_data)
+        self.window.save_button.config(command=self.save_lease)
     
+    def save_lease(self) -> None:
+        start_date = self.window.start_date_entry.get_date()
+        end_date = self.window.end_date_entry.get_date()
+        deposit_amount = float(self.window.deposit_entry.get())
+        monthly_rent_amount = float(self.window.rent_entry.get())
+        
+        success = self.manager.add_lease(start_date, end_date, deposit_amount, monthly_rent_amount)
+        if success:
+            self.window.destroy()
+            messagebox.showinfo("Success", "Lease saved successfully.")
+        else:
+            messagebox.showerror("Error", "Failed to save lease.")
