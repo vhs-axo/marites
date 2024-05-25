@@ -47,7 +47,6 @@ class TenantForm(Tk):
         
         self.__init_labels()
         self.__init_entries()
-        self.__init_datepickers()
         self.__init_buttons()
         
         self.__set_layout()
@@ -64,9 +63,8 @@ class TenantForm(Tk):
         self.firstname_entry = Entry(master=self)
         self.middlename_entry = Entry(master=self)
         self.contactnumber_entry = Entry(master=self)
-    
-    def __init_datepickers(self) -> None:
-        self.datepick_dateentry = DateEntry(master=self)
+        
+        self.birthdate_dateentry = DateEntry(master=self, date_pattern="yyyy-mm-dd")
     
     def __init_buttons(self) -> None:
         self.add_tenant_button = Button(master=self, text="Add Tenant")
@@ -111,72 +109,107 @@ class TenantForm(Tk):
             row=3, column=0, rowspan=1, columnspan=2,
             sticky="nsew", padx=(7, 7), pady=(0, 7)
         )
+        self.birthdate_dateentry.grid(
+            row=3, column=2, rowspan=1, columnspan=1,
+            sticky="nsew", padx=(7, 7), pady=(0, 7)
+        )
+        
+        self.add_tenant_button.grid(
+            row=4, column=5, rowspan=1, columnspan=1,
+            sticky="nsew", padx=(7, 7), pady=(0, 7)
+        )
+        
+        self.title("Add Tenant")
+        self.resizable(False, False)
 
-class LeaseForm(Toplevel):
-    def __init__(self, parent: Tk, lease_data: dict = None) -> None:
-        super().__init__(parent)
-        self.parent = parent
-        self.lease_data = lease_data
+class LeaseForm(Tk):
+    def __init__(self) -> None:
+        super().__init__()
         
         self.__init_labels()
         self.__init_entries()
-        self.__init_datepickers()
+        self.__init_comboboxes()
         self.__init_buttons()
         
         self.__set_layout()
-        
+    
     def __init_labels(self) -> None:
-        self.start_date_label = Label(self, text="Lease Start Date:")
-        self.end_date_label = Label(self, text="Lease End Date:")
-        self.deposit_label = Label(self, text="Deposit Amount:")
-        self.rent_label = Label(self, text="Monthly Rent Amount:")
+        self.leaser_label = Label(master=self, text="*Leaser")
+        self.startdate_label = Label(master=self, text="*Lease Start Date")
+        self.enddate_label = Label(master=self, text="*Lease End Date")
+        self.deposit_label = Label(master=self, text="*Deposit Amount")
+        self.rent_label = Label(master=self, text="*Monthly Rent Amount")
     
     def __init_entries(self) -> None:
-        self.start_date_entry = DateEntry(self, width=12, date_pattern="yyyy-mm-dd")
-        self.end_date_entry = DateEntry(self, width=12, date_pattern="yyyy-mm-dd")
-        self.deposit_entry = Entry(self)
-        self.rent_entry = Entry(self)
+        self.deposit_entry = Entry(master=self)
+        self.rent_entry = Entry(master=self)
         
-        if self.lease_data:
-            self.start_date_entry.set_date(self.lease_data.get('lease_start', ''))
-            self.end_date_entry.set_date(self.lease_data.get('lease_end', ''))
-            self.deposit_entry.insert(0, str(self.lease_data.get('deposit_amount', '')))
-            self.rent_entry.insert(0, str(self.lease_data.get('monthly_rentAmount', '')))
+        self.startdate_entry = DateEntry(master=self, date_pattern="yyyy-mm-dd")
+        self.enddate_entry = DateEntry(master=self, date_pattern="yyyy-mm-dd")
     
-    def __init_datepickers(self) -> None:
-        pass
+    def __init_comboboxes(self) -> None:
+        self.leaser_combobox = Combobox(master=self)
     
     def __init_buttons(self) -> None:
-        self.save_button = Button(self, text="Save", command=self.save_lease)
-        self.cancel_button = Button(self, text="Cancel", command=self.destroy)
+        self.add_lease_button = Button(self, text="Add Lease")
     
     def __set_layout(self) -> None:
-        self.start_date_label.grid(row=0, column=0, padx=5, pady=5, sticky="e")
-        self.start_date_entry.grid(row=0, column=1, padx=5, pady=5, sticky="w")
-        self.end_date_label.grid(row=1, column=0, padx=5, pady=5, sticky="e")
-        self.end_date_entry.grid(row=1, column=1, padx=5, pady=5, sticky="w")
-        self.deposit_label.grid(row=2, column=0, padx=5, pady=5, sticky="e")
-        self.deposit_entry.grid(row=2, column=1, padx=5, pady=5, sticky="w")
-        self.rent_label.grid(row=3, column=0, padx=5, pady=5, sticky="e")
-        self.rent_entry.grid(row=3, column=1, padx=5, pady=5, sticky="w")
-        self.save_button.grid(row=4, column=0, columnspan=2, padx=5, pady=5)
-        self.cancel_button.grid(row=5, column=0, columnspan=2, padx=5, pady=5)
+        self.leaser_label.grid(
+            row=0, column=0, rowspan=1, columnspan=1,
+            sticky="sw", padx=7, pady=(7, 0)
+        )
         
-    def save_lease(self) -> None:
-        start_date = self.start_date_entry.get_date()
-        end_date = self.end_date_entry.get_date()
-        deposit_amount = float(self.deposit_entry.get())
-        monthly_rentAmount = float(self.rent_entry.get())
+        self.leaser_combobox.grid(
+            row=1, column=0, rowspan=1, columnspan=2,
+            sticky="nsew", padx=7, pady=(0, 7)
+        )        
         
-        print("Lease Start Date:", start_date)
-        print("Lease End Date:", end_date)
-        print("Deposit Amount:", deposit_amount)
-        print("Monthly Rent Amount:", monthly_rentAmount)
+        self.startdate_label.grid(
+            row=2, column=0, rowspan=1, columnspan=1,
+            sticky="sw", padx=(7, 7), pady=(7, 0)
+        )
+        self.enddate_label.grid(
+            row=2, column=1, rowspan=1, columnspan=1,
+            sticky="sw", padx=(7, 7), pady=(7, 0)
+        )
         
-        self.destroy()
+        self.startdate_entry.grid(
+            row=3, column=0, rowspan=1, columnspan=1,
+            sticky="nsew", padx=(7, 7), pady=(0, 7)
+        )
+        self.enddate_entry.grid(
+            row=3, column=1, rowspan=1, columnspan=1,
+            sticky="nsew", padx=(7, 7), pady=(0, 7)
+        )
+        
+        self.deposit_label.grid(
+            row=4, column=0, rowspan=1, columnspan=1,
+            sticky="sw", padx=(7, 7), pady=(7, 0)
+        )
+        self.rent_label.grid(
+            row=4, column=1, rowspan=1, columnspan=1,
+            sticky="sw", padx=(7, 7), pady=(7, 0)
+        )
+        
+        self.deposit_entry.grid(
+            row=5, column=0, rowspan=1, columnspan=1,
+            sticky="nsew", padx=(7, 7), pady=(0, 7)
+        )
+        self.rent_entry.grid(
+            row=5, column=1, rowspan=1, columnspan=1,
+            sticky="nsew", padx=(7, 7), pady=(0, 7)
+        )
+        
+        self.add_lease_button.grid(
+            row=6, column=1, rowspan=1, columnspan=1,
+            sticky="nse", padx=7, pady=(7, 7)
+        )
+        
+        self.title("Add Lease")
+        self.resizable(False, False)
 
 def main() -> None:
-   TenantForm().mainloop()
+   LeaseForm().mainloop()
 
 if __name__ == "__main__":
    main()
