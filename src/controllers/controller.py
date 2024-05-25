@@ -1,12 +1,14 @@
+from __future__ import annotations
 
+from typing import Optional
 from datetime import date
 import re
-from numpy import delete
-from managers.manager import BoardingHouseManager
-from models.entities import Room, Tenant, Lease, Payment
-from services.service import SessionFactory
-from views.rooms import RoomListWindow, RoomOpenWindow
+
 from views.forms import RoomForm, TenantForm, LeaseForm, PaymentForm
+from views.rooms import RoomListWindow, RoomOpenWindow
+from models.entities import Room, Tenant, Lease, Payment
+from managers.manager import BoardingHouseManager
+
 from tkinter import messagebox, StringVar
 
 def to_uppercase(var: StringVar) -> None:
@@ -16,7 +18,11 @@ def valid_contact_number(contact_number: str) -> bool:
     return bool(re.match(r"^09[0-9]{9}", contact_number))
 
 class RoomListController:
-    def __init__(self, manager: BoardingHouseManager, window: RoomListWindow) -> None:
+    def __init__(
+        self, 
+        manager: BoardingHouseManager, 
+        window: RoomListWindow
+    ) -> None:
         self.manager = manager
         self.window = window
         
@@ -123,7 +129,12 @@ class RoomFormController:
             )
 
 class RoomOpenController:
-    def __init__(self, parent: RoomListController, window: RoomOpenWindow, room: Room) -> None:
+    def __init__(
+        self, 
+        parent: RoomListController, 
+        window: RoomOpenWindow, 
+        room: Room
+    ) -> None:
         self.parent = parent
         self.window = window
         self.room = room
@@ -268,7 +279,12 @@ class RoomOpenController:
         
     
 class TenantFormController:
-    def __init__(self, parent: RoomOpenController, window: TenantForm, tenant: Tenant) -> None:
+    def __init__(
+        self, 
+        parent: RoomOpenController, 
+        window: TenantForm, 
+        tenant: Optional[Tenant] = None
+    ) -> None:
         self.parent = parent
         self.window = window
         self.tenant = tenant
@@ -294,31 +310,42 @@ class TenantFormController:
         vm = middlename.isalpha() or middlename == ""
         vc = valid_contact_number(contact)
         
-        room_number = int(self.parent.window.room_number_label["text"].split(":")[1].strip())
-        
         if vl and vf and vm and vc:
-            tenant = self.parent.parent.manager.add_tenant(Tenant(
-                last_name=lastname,
-                first_name=firstname,
-                middle_name=middlename,
-                birth_date=bdate,
-                contact_number=contact,
-                room_number=room_number
-            ))
+            if self.tenant:
+                self.tenant.last_name = lastname
+                self.tenant.first_name = firstname
+                self.tenant.middle_name = middlename
+                self.tenant.birth_date = bdate
+                self.tenant.contact_number = contact
+                
+                self.parent.parent.manager.update_tenant(self.tenant)
+                
+                title = "Tenant Updated"
+                message = f"{self.tenant}'s information was updated successfully."
+            
+            else:
+                tenant = self.parent.parent.manager.add_tenant(Tenant(
+                    last_name=lastname,
+                    first_name=firstname,
+                    middle_name=middlename,
+                    birth_date=bdate,
+                    contact_number=contact,
+                    room_number=int(self.parent.window.room_number_label["text"].split(":")[1].strip())
+                ))
+                
+                title = "Tenant Added"
+                message = f"{tenant.formatted_name} was added successfully."
             
             self.parent.load_data()
             
             self.window.destroy()
             
-            messagebox.showinfo(
-                title="Tenant Added",
-                message=f"Tenant {tenant.formatted_name} added successfully."
-            )
+            messagebox.showinfo(title=title, message=message)
         
         else:
             messagebox.showerror(
                 title="Error",
-                message="Error in adding tenant. At least one of the inputs are invalid."
+                message="At least one of the inputs are invalid."
             )
         
 class LeaseFormController:
