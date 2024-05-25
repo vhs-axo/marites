@@ -68,7 +68,7 @@ class RoomListWindow(Tk):
         self.__init_buttons()
         
         self.__set_layout()
-        
+    
     def __init_entries(self) -> None:
         self.search_room_entry = Entry(master=self)
     

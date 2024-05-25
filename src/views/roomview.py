@@ -1,11 +1,12 @@
 from __future__ import annotations
 from tkinter import Tk, Toplevel, Event
-from tkinter.ttk import Treeview, Style, Combobox, Button, Label, Entry, Scrollbar, Separator
+from tkinter.ttk import Treeview, Style, Combobox, Button, Label, Entry, Scrollbar, Separator, Frame
 
 class RoomOpenWindow(Tk):
     def __init__(self) -> None:
         super().__init__()
         
+        self.__init_frames()
         self.__init_labels()
         self.__init_treeviews()
         self.__init_scrollbars()
@@ -13,21 +14,21 @@ class RoomOpenWindow(Tk):
         self.__init_separators()
         
         self.__set_layout()
+    
+    def __init_frames(self) -> None:
+        self.room_tenant_frame = Frame(master=self)
+        self.lease_payment_frame = Frame(master=self)
 
     def __init_labels(self) -> None:
-        self.room_number_label = Label(master=self, text="Room Number: [Number]")
-        self.tenant_count_label = Label(master=self, text="Tenant Count: [Count]")
-        self.max_capacity_label = Label(master=self, text="Max Capacity: [Max]")
+        self.room_number_label = Label(master=self.room_tenant_frame, text="Room Number: [Number]")
+        self.tenant_count_label = Label(master=self.room_tenant_frame, text="Tenant Count: [Count]")
+        self.max_capacity_label = Label(master=self.room_tenant_frame, text="Max Capacity: [Max]")
         
-        self.lease_start_label = Label(master=self, text="Lease Start: [Start]")
-        self.lease_end_label = Label(master=self, text="Lease End: [End]")
-        self.lease_deposit_label = Label(master=self, text="Deposit: [Amount]")
-        self.lease_rent_label = Label(master=self, text="Rent: [Amount]")
-        self.leaser_label = Label(master=self, text="Leaser: [Name]")
-        
-        self.tenants_label = Label(master=self, text="Tenants:")
-        self.lease_label = Label(master=self, text="Lease Information:")
-        self.payments_label = Label(master=self, text="Payments:")
+        self.lease_start_label = Label(master=self.lease_payment_frame, text="Lease Start: [Start]")
+        self.lease_end_label = Label(master=self.lease_payment_frame, text="Lease End: [End]")
+        self.lease_deposit_label = Label(master=self.lease_payment_frame, text="Deposit: [Amount]")
+        self.lease_rent_label = Label(master=self.lease_payment_frame, text="Rent: [Amount]")
+        self.leaser_label = Label(master=self.lease_payment_frame, text="Leaser: [Name]")
     
     def __init_treeviews(self) -> None:
         self.tenants_treeview = Treeview(
