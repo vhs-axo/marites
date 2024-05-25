@@ -25,6 +25,9 @@ class Room(Base):
     tenants: Mapped[list[Tenant]] = relationship("Tenant", back_populates="room")
     lease: Mapped[Lease] = relationship("Lease", back_populates="room")
 
+    def __eq__(self, other: Room) -> bool:
+        return self.room_number == other.room_number
+
     def __str__(self) -> str:
         return f"Room: {self.room_number} | Occupancy {self.tenant_count} / {self.max_capacity}"
     
@@ -55,6 +58,9 @@ class Tenant(Base):
     room: Mapped[Room] = relationship("Room", back_populates="tenants")
     lease: Mapped[Lease] = relationship("Lease", back_populates="leaser")
 
+    def __eq__(self, other: Tenant) -> bool:
+        return self.tenant_id == other.tenant_id
+
     def __str__(self) -> str:
         return f"Tenant: {self.tenant_id} in Room {self.room_number} | {self.formatted_name} | {self.birth_date} | {self.contact_number}"
     
@@ -84,6 +90,9 @@ class Lease(Base):
     room: Mapped[Room] = relationship("Room", back_populates="lease")
     payments: Mapped[list[Payment]] = relationship("Payment", back_populates="lease")
 
+    def __eq__(self, other: Lease) -> bool:
+        return self.lease_id == other.lease_id
+
 class Payment(Base):
     __tablename__ = 'payments'
     
@@ -99,6 +108,9 @@ class Payment(Base):
     )
     
     lease: Mapped[Lease] = relationship("Lease", back_populates="payments")
+
+    def __eq__(self, other: Payment) -> bool:
+        return self.payment_id == other.payment_id
 
 @event.listens_for(Tenant, "after_insert")
 def uppercase_names(mapper, connection, target):
