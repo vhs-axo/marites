@@ -288,6 +288,12 @@ class TenantFormController:
         self.parent = parent
         self.window = window
         self.tenant = tenant
+        
+        if not tenant:
+            self.load_data()
+        
+    def load_data(self) -> None:
+        ...
     
     def set_validations(self) -> None:
         ...
