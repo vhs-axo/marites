@@ -30,8 +30,6 @@ class Room(Base):
     
     def __repr__(self) -> str:
         return f"Room(room_number={self.room_number}, tenant_count={self.tenant_count}, max_capacity={self.max_capacity})"
-        
-
 
 class Tenant(Base):
     __tablename__ = 'tenants'
@@ -62,8 +60,6 @@ class Tenant(Base):
     
     def __repr__(self) -> str:
         return f"Tenant(tenant_id={self.room_number}, last_name={self.last_name!r}, first_name={self.first_name!r}, middle_name={self.middle_name!r}, birth_date={self.birth_date!r}, contact_number={self.contact_number!r}, room_number={self.room_number})"
-        
-
 
 class Lease(Base):
     __tablename__ = 'leases'
@@ -87,8 +83,6 @@ class Lease(Base):
     leaser: Mapped[Tenant] = relationship("Tenant", back_populates="lease")
     room: Mapped[Room] = relationship("Room", back_populates="lease")
     payments: Mapped[list[Payment]] = relationship("Payment", back_populates="lease")
-
-
 
 class Payment(Base):
     __tablename__ = 'payments'
