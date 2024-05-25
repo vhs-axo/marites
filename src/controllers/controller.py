@@ -1,10 +1,19 @@
 
+from datetime import date
+import re
+from numpy import delete
 from managers.manager import BoardingHouseManager
 from models.entities import Room, Tenant, Lease, Payment
 from services.service import SessionFactory
 from views.rooms import RoomListWindow, RoomOpenWindow
 from views.forms import RoomForm, TenantForm, LeaseForm, PaymentForm
-from tkinter import messagebox
+from tkinter import messagebox, StringVar
+
+def to_uppercase(var: StringVar) -> None:
+    var.set(var.get().upper())
+
+def valid_contact_number(contact_number: str) -> bool:
+    return bool(re.match(r"^09[0-9]{9}", contact_number))
 
 class RoomListController:
     def __init__(self, manager: BoardingHouseManager, window: RoomListWindow) -> None:
@@ -19,6 +28,8 @@ class RoomListController:
         self.window.add_room_button.configure(command=self.add_room_pressed)
         self.window.open_room_button.configure(command=self.open_room_pressed)
         self.window.delete_room_button.configure(command=self.delete_room_pressed)
+        
+        self.window.protocol("WM_DELETE_WINDOW", self.window.destroy)
     
     def load_rooms(self) -> None:
         for room in self.manager.get_all_rooms():
@@ -34,7 +45,6 @@ class RoomListController:
     
     def add_room_pressed(self) -> None:
         RoomFormController(self, RoomForm())
-        self.window.withdraw()
     
     def open_room_pressed(self) -> None:
         if r := self.window.rooms_treeview.selection():
@@ -44,6 +54,7 @@ class RoomListController:
         
         if room:
             RoomOpenController(self, RoomOpenWindow(), room)
+            self.window.withdraw()
     
     def delete_room_pressed(self) -> None:
         if r := self.window.rooms_treeview.selection():
@@ -65,6 +76,10 @@ class RoomListController:
                 )
                 
                 self.load_rooms()
+    
+    def close(self) -> None:
+        self.window.destroy()
+        self.manager.close_session()
 
 class RoomFormController:
     def __init__(self, parent: RoomListController, window: RoomForm) -> None:
@@ -93,7 +108,6 @@ class RoomFormController:
             room = self.parent.manager.add_room(Room(max_capacity=max_cap))
             
             self.window.destroy()
-            self.parent.window.deiconify()
             
             self.parent.load_rooms()
             
@@ -119,7 +133,18 @@ class RoomOpenController:
         self.load_data()
     
     def set_actions(self) -> None:
-        ...
+        self.window.protocol("WM_DELETE_WINDOW", self.close)
+        
+        self.window.delete_tenant_button.configure(command=self.delete_tenant_pressed)
+        self.window.delete_payment_button.configure(command=self.delete_payment_pressed)
+        self.window.edit_tenant_button.configure(command=self.edit_tenant_pressed)
+        self.window.edit_payment_button.configure(command=self.edit_payment_pressed)
+        
+        self.window.add_tenant_button.configure(command=self.add_tenant_pressed)
+        self.window.add_payment_button.configure(command=self.add_payment_pressed)
+        
+        self.window.edit_room_button.configure(command=self.edit_payment_pressed)
+        self.window.add_lease_button.configure(command=self.add_lease_pressed)
     
     def load_data(self) -> None:
         self.window.room_number_label.configure(text=f"Room Number: {self.room.room_number}")
@@ -175,52 +200,124 @@ class RoomOpenController:
     
     def delete_tenant_pressed(self) -> None:
         if t := self.window.tenants_treeview.selection():
-            tenant = self.parent.manager.get_room(int(t[0]))
+            tenant = self.parent.manager.get_tenant(int(t[0]))
         else:
             return
         
         if tenant:
-            if tenant 
+            if tenant == self.room.lease.leaser:
+                messagebox.showerror(title="Leaser Deletion", message="You are not allowed to delete the leaser.")
+                return
             
             messagebox.showwarning("Delete Tenant", message="You are about to delete a room.")
             
             if messagebox.askyesno(
-                title="Delete Room",
-                message=f"Are you sure you want to delete Room {room.room_number}?"
+                title="Delete Tenant",
+                message=f"Are you sure you want to delete {tenant.formatted_name}?"
             ):
-                self.manager.delete_room(room)
+                self.parent.manager.delete_tenant(tenant)
                 messagebox.showinfo(
-                    title="Room Deleted",
-                    message="Room deleted successfully."
+                    title="Tenant Deleted",
+                    message="Tenant deleted successfully."
                 )
                 
-                self.load_rooms()
+                self.load_data()
+    
+    def delete_payment_pressed(self) -> None:
+        if p := self.window.payments_treeview.selection():
+            payment = self.parent.manager.get_payment(int(p[0]))
+        else:
+            return
+
+        messagebox.showwarning("Delete Payment", message="You are about to delete a payment record.")
+        
+        if payment:
+            if messagebox.askyesno(
+                title="Delete Payment",
+                message=f"Are you sure you want to delete {payment}?"
+            ):
+                self.parent.manager.delete_tenant(payment)
+                messagebox.showinfo(
+                    title="Payment Deleted",
+                    message="Payment Record deleted successfully."
+                )
+                
+                self.load_data()
+    
+    def edit_tenant_pressed(self) -> None:
+        ...
+    
+    def edit_payment_pressed(self) -> None:
+        ...
+    
+    def add_tenant_pressed(self) -> None:
+        ...
+        
+    def add_payment_pressed(self) -> None:
+        ...
+    
+    def edit_room_pressed(self) -> None:
+        ...
+        
+    def add_lease_pressed(self) -> None:
+        ...
+        
+    def close(self) -> None:
+        self.window.destroy()
+        self.parent.window.deiconify()
+        
     
 class TenantFormController:
-    def __init__(self, manager: BoardingHouseManager, parent_window: Tk) -> None:
-        self.manager = manager
-        self.parent_window = parent_window
-        self.window = TenantForm(parent_window)
-        self.window.add_tenant_button.config(command=self.add_tenant)
-        self.window.protocol("WM_DELETE_WINDOW", self.window.destroy)
-
-        last_name = self.window.lastname_entry.get()
-        first_name = self.window.firstname_entry.get()
-        middle_name = self.window.middlename_entry.get()
-        contact_number = self.window.contactnumber_entry.get()
-        birth_date = self.window.birthdate_dateentry.get_date()
+    def __init__(self, parent: RoomOpenController, window: TenantForm, tenant: Tenant) -> None:
+        self.parent = parent
+        self.window = window
+        self.tenant = tenant
+    
+    def set_validations(self) -> None:
+        ...
+    
+    def set_formatters(self) -> None:
+        ...
+    
+    def set_actions(self) -> None:
+        self.window.add_tenant_button.configure(command=self.add_tenant_pressed)
+    
+    def add_tenant_pressed(self) -> None:
+        lastname: str = self.window.lastname_entry.get().strip().upper()
+        firstname: str = self.window.firstname_entry.get().strip().upper()
+        middlename: str = self.window.middlename_entry.get().strip().upper()
+        contact: str = self.window.contactnumber_entry.get().strip()
+        bdate: date = self.window.birthdate_dateentry.get_date()
         
-        tenant_data = {
-            'last_name': last_name,
-            'first_name': first_name,
-            'middle_name': middle_name,
-            'contact_number': contact_number,
-            'birth_date': birth_date
-        }
-        result = self.manager.add_tenant(tenant_data) 
+        vl = lastname.isalpha()
+        vf = firstname.isalpha()
+        vm = middlename.isalpha() or middlename == ""
+        vc = valid_contact_number(contact)
         
-        if result:
-            messagebox.showinfo("Success", "Tenant added successfully!")
+        room_number = int(self.parent.window.room_number_label["text"].split(":")[1].strip())
+        
+        if vl and vf and vm and vc:
+            tenant = self.parent.parent.manager.add_tenant(Tenant(
+                last_name=lastname,
+                first_name=firstname,
+                middle_name=middlename,
+                birth_date=bdate,
+                contact_number=contact,
+                room_number=room_number
+            ))
+            
+            self.parent.load_data()
+            
             self.window.destroy()
+            
+            messagebox.showinfo(
+                title="Tenant Added",
+                message=f"Tenant {tenant.formatted_name} added successfully."
+            )
+        
         else:
-            messagebox.showerror("Error", "Failed to add tenant!")
+            messagebox.showerror(
+                title="Error",
+                message="Error in adding tenant. At least one of the inputs are invalid."
+            )
+        
