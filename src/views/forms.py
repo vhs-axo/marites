@@ -56,8 +56,8 @@ class TenantForm(Tk):
         self.lastname_label = Label(master=self, text="*Last Name")
         self.firstname_label = Label(master=self, text="*First Name")
         self.middlename_label = Label(master=self, text="Middle Name")
-        self.contactnumber_label = Label(master=self, text="Contact Number (09XXXXXXXXX)")
-        self.birthdate_label = Label(master=self, text="Birth Date")
+        self.contactnumber_label = Label(master=self, text="*Contact Number (09XXXXXXXXX)")
+        self.birthdate_label = Label(master=self, text="*Birth Date")
     
     def __init_entries(self) -> None:
         self.lastname_entry = Entry(master=self)
@@ -72,10 +72,48 @@ class TenantForm(Tk):
         self.add_tenant_button = Button(master=self, text="Add Tenant")
     
     def __set_layout(self) -> None:
-        pass
+        self.lastname_label.grid(
+            row=0, column=0, rowspan=1, columnspan=1,
+            sticky="sw", padx=(7, 7), pady=(7, 0)
+        )
+        self.firstname_label.grid(
+            row=0, column=2, rowspan=1, columnspan=1,
+            sticky="sw", padx=(7, 7), pady=(7, 0)
+        )
+        self.middlename_label.grid(
+            row=0, column=4, rowspan=1, columnspan=1,
+            sticky="sw", padx=(7, 7), pady=(7, 0)
+        )
+        
+        self.lastname_entry.grid(
+            row=1, column=0, rowspan=1, columnspan=2,
+            sticky="nsew", padx=(7, 7), pady=(0, 7)
+        )
+        self.firstname_entry.grid(
+            row=1, column=2, rowspan=1, columnspan=2,
+            sticky="nsew", padx=(7, 7), pady=(0, 7)
+        )
+        self.middlename_entry.grid(
+            row=1, column=4, rowspan=1, columnspan=2,
+            sticky="nsew", padx=(7, 7), pady=(0, 7)
+        )
+        
+        self.contactnumber_label.grid(
+            row=2, column=0, rowspan=1, columnspan=1,
+            sticky="sw", padx=(7, 7), pady=(7, 0)
+        )
+        self.birthdate_label.grid(
+            row=2, column=2, rowspan=1, columnspan=1,
+            sticky="sw", padx=(7, 7), pady=(7, 0)
+        )
+        
+        self.contactnumber_entry.grid(
+            row=3, column=0, rowspan=1, columnspan=2,
+            sticky="nsew", padx=(7, 7), pady=(0, 7)
+        )
 
 def main() -> None:
-   RoomForm().mainloop()
+   TenantForm().mainloop()
 
 if __name__ == "__main__":
    main()
