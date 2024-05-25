@@ -187,6 +187,10 @@ class RoomOpenWindow(Tk):
         customization_buttons(self.tenants_treeview, self.edit_tenant_button, self.delete_tenant_button)
         customization_buttons(self.payments_treeview, self.edit_payment_button, self.delete_payment_button)        
 
+        self.title("Room [Number]")
+        
+        self.resizable(False, False)
+        
 def main() -> None:
    RoomOpenWindow().mainloop()
 
