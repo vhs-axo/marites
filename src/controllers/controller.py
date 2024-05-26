@@ -682,7 +682,7 @@ class PaymentFormController:
                 message = f"Payment on {self.payment.payment_date} worth {self.payment.payment_amount} has been updated successfully."
             
             else:
-                self.parent.parent.manager.add_payment(Payment(
+                payment = self.parent.parent.manager.add_payment(Payment(
                     lease_id=self.lease.lease_id,
                     payment_amount=payment_amount,
                     payment_date=payment_date,
@@ -690,7 +690,7 @@ class PaymentFormController:
                 ))
                 
                 title = "Payment Added"
-                message = f"Payment for {self.payment.payment_date} worth {self.payment.payment_amount} has been added successfully."
+                message = f"Payment for {payment.payment_date} worth {payment.payment_amount} has been added successfully."
             
             self.parent.load_payments()
             
