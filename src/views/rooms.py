@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from tkinter import Tk, Event
 from tkinter.ttk import Treeview, Style, Button, Label, Entry, Scrollbar, Separator, Frame
 

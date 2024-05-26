@@ -3,12 +3,12 @@ from __future__ import annotations
 from decimal import Decimal
 from typing import Optional
 from datetime import date
-import re
+from re import match
 
-from views.forms import RoomForm, TenantForm, LeaseForm, PaymentForm
-from views.rooms import RoomListWindow, RoomOpenWindow
-from models.entities import Room, Tenant, Lease, Payment
-from managers.manager import BoardingHouseManager
+from src.views.forms import RoomForm, TenantForm, LeaseForm, PaymentForm
+from src.views.rooms import RoomListWindow, RoomOpenWindow
+from src.models.entities import Room, Tenant, Lease, Payment
+from src.managers.manager import BoardingHouseManager
 
 from tkinter import messagebox, StringVar
 
@@ -16,7 +16,7 @@ def to_uppercase(var: StringVar) -> None:
     var.set(var.get().upper())
 
 def valid_contact_number(contact_number: str) -> bool:
-    return bool(re.match(r"^09[0-9]{9}", contact_number))
+    return bool(match(r"^09[0-9]{9}", contact_number))
 
 def valid_amount(amount: str) -> bool:
     try:

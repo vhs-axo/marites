@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 from sqlalchemy import create_engine, Engine
 from sqlalchemy.orm import sessionmaker, Session
 
-from models.base import Base
+from src.models.base import Base
 
 class SessionFactory:
     def __init__(self, username: str, password: str):

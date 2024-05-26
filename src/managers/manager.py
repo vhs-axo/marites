@@ -1,7 +1,10 @@
-from datetime import date
+from __future__ import annotations
+
+from src.models.entities import Room, Tenant, Lease, Payment
+from src.services.service import Session
+
 from typing import Iterable, Optional
-from models.entities import Room, Tenant, Lease, Payment
-from services.service import Session
+
 from sqlalchemy import asc, desc
 
 class BoardingHouseManager:

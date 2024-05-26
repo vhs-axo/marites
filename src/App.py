@@ -1,9 +1,7 @@
-from managers.manager import BoardingHouseManager
-from models.entities import *
-from services.service import SessionFactory
-from views.rooms import RoomListWindow
-from controllers.controller import RoomListController
-from datetime import date
+from src.managers.manager import BoardingHouseManager
+from src.services.service import SessionFactory
+from src.views.rooms import RoomListWindow
+from src.controllers.controller import RoomListController
 
 class App:
    def __init__(self, username: str, password: str) -> None:

@@ -9,7 +9,7 @@ from sqlalchemy.orm import relationship, mapped_column, Mapped
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy import event
 
-from models.base import Base
+from src.models.base import Base
 
 class Room(Base):
     __tablename__ = "rooms"
