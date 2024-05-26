@@ -258,7 +258,7 @@ class RoomOpenController:
             text=f"Deposit: {self.room.lease.deposit_amount}" if self.room.lease else "Deposit: "
         )
         self.window.lease_rent_label.configure(
-            text=f"Rent: {self.room.lease.monthly_rent_mount}" if self.room.lease else "Rent: "
+            text=f"Rent: {self.room.lease.monthly_rent_amount}" if self.room.lease else "Rent: "
         )
         
         self.window.add_lease_button.configure(text="Delete Lease" if self.room.lease else "Add Lease")
