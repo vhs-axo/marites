@@ -42,9 +42,9 @@ class RoomListController:
         self.load_rooms()
   
     def set_formatters(self) -> None:
-        search_var = StringVar()
+        self.search_var = StringVar()
         
-        self.window.search_room_entry.configure(textvariable=search_var)
+        self.window.search_room_entry.configure(textvariable=self.search_var)
 
     def set_validations(self) -> None:
         self.window.search_room_entry.configure(
@@ -62,9 +62,9 @@ class RoomListController:
         self.window.open_room_button.configure(command=self.open_room_pressed)
         self.window.delete_room_button.configure(command=self.delete_room_pressed)
         
-        self.window.search_room_entry.cget("textvariable").trace_add(
+        self.search_var.trace_add(
             "write", 
-            self.load_rooms
+            lambda *_: self.load_rooms()
         )
     
     def load_rooms(self) -> None:
@@ -161,8 +161,6 @@ class RoomFormController:
         mxcap_var = StringVar()
         
         self.window.max_capacity_entry.configure(textvariable=mxcap_var)
-        
-        mxcap_var.trace_add("write", lambda *_: to_uppercase(mxcap_var))
     
     def set_actions(self) -> None:
         self.window.add_room_button.configure(command=self.add_room_pressed)
@@ -466,7 +464,6 @@ class TenantFormController:
         lname_var.trace_add("write", lambda *_: to_uppercase(lname_var))
         fname_var.trace_add("write", lambda *_: to_uppercase(fname_var))
         mname_var.trace_add("write", lambda *_: to_uppercase(mname_var))
-        contc_var.trace_add("write", lambda *_: to_uppercase(contc_var))
     
     def set_actions(self) -> None:
         self.window.protocol("WM_DELETE_WINDOW", self.close)
