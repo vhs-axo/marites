@@ -167,7 +167,7 @@ class RoomFormController:
     
     def load_data(self) -> None:
         if self.room:
-            self.window.max_capacity_entry.cget("textvariable").set(self.room.max_capacity)
+            self.window.max_capacity_entry.insert(0, str(self.room.max_capacity))
     
     def add_room_pressed(self) -> None:
         if ((max_cap := self.window.max_capacity_entry.get()).isnumeric()) and int(max_cap) > 0:
@@ -474,10 +474,10 @@ class TenantFormController:
         self.window.add_tenant_button.configure(command=self.add_tenant_pressed)
         
     def load_data(self) -> None:
-        self.window.lastname_entry.cget("textvariable").set(self.tenant.last_name)
-        self.window.firstname_entry.cget("textvariable").set(self.tenant.first_name)
-        self.window.middlename_entry.cget("textvariable").set(self.tenant.middle_name)
-        self.window.contactnumber_entry.cget("textvariable").set(self.tenant.contact_number)
+        self.window.lastname_entry.insert(0, self.tenant.last_name)
+        self.window.firstname_entry.insert(0, self.tenant.first_name)
+        self.window.middlename_entry.insert(0, self.tenant.middle_name)
+        self.window.contactnumber_entry.insert(0, self.tenant.contact_number)
         self.window.birthdate_dateentry.set_date(self.tenant.birth_date)
     
     def add_tenant_pressed(self) -> None:
@@ -664,7 +664,7 @@ class PaymentFormController:
     def load_data(self) -> None:
         if self.payment:
             self.window.payment_date_entry.set_date(self.payment.payment_date)
-            self.window.payment_amount_entry.cget("textvariable").set(self.payment.payment_amount)
+            self.window.payment_amount_entry.insert(0, str(self.payment.payment_amount))
             self.window.paid_var.set(self.payment.paid)
     
     def add_payment_pressed(self) -> None:
