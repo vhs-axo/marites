@@ -487,9 +487,9 @@ class TenantFormController:
         contact: str = self.window.contactnumber_entry.get().strip()
         bdate: date = self.window.birthdate_dateentry.get_date()
         
-        vl = lastname.isalpha()
-        vf = firstname.isalpha()
-        vm = middlename.isalpha() or middlename == ""
+        vl = bool(lastname)
+        vf = bool(firstname)
+        vm = bool(middlename) or middlename == ""
         vc = valid_contact_number(contact)
         
         if vl and vf and vm and vc:
