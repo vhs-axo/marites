@@ -35,11 +35,17 @@ class RoomListController:
         self.manager = manager
         self.window = window
         
+        self.set_formatters()
         self.set_validations()
         self.set_actions()
         
         self.load_rooms()
-    
+  
+    def set_formatters(self) -> None:
+        search_var = StringVar()
+        
+        self.window.search_room_entry.configure(textvariable=search_var)
+
     def set_validations(self) -> None:
         self.window.search_room_entry.configure(
             validate="key", 
