@@ -3,11 +3,11 @@ from __future__ import annotations
 from datetime import date
 from decimal import Decimal
 
-from sqlalchemy.sql.schema import Index, ForeignKey, CheckConstraint, UniqueConstraint, ddl
+from sqlalchemy.sql.schema import Index, ForeignKey, CheckConstraint, UniqueConstraint
 from sqlalchemy.dialects.mysql import INTEGER, VARCHAR, DATE, DECIMAL, BOOLEAN
-from sqlalchemy.orm import relationship, mapped_column, Mapped, Session
+from sqlalchemy.orm import relationship, mapped_column, Mapped
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy import event, inspect
+from sqlalchemy import event
 
 from models.base import Base
 
