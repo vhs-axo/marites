@@ -587,7 +587,7 @@ class LeaseFormController:
             self.parent.parent.manager.add_lease(Lease(
                 leaser_id=leaser_id,
                 room_number=self.parent.room.room_number,
-                lese_start=start_date,
+                lease_start=start_date,
                 lease_end=end_date,
                 deposit_amount=Decimal(deposit),
                 monthly_rent_amount=Decimal(rent)
