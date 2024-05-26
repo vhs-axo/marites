@@ -260,6 +260,9 @@ class RoomOpenController:
         self.window.lease_rent_label.configure(
             text=f"Rent: {self.room.lease.monthly_rent_amount}" if self.room.lease else "Rent: "
         )
+        self.window.leaser_label.configure(
+            text=f"Leaser: {self.room.lease.leaser.formatted_name}" if self.room.lease else "Leaser: "
+        )
         
         self.window.add_lease_button.configure(text="Delete Lease" if self.room.lease else "Add Lease")
         self.window.add_payment_button.configure(state="normal" if self.room.lease else "disabled")
