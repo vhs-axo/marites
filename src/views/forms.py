@@ -1,5 +1,5 @@
 from __future__ import annotations
-from tkinter import Toplevel
+from tkinter import BooleanVar, Toplevel
 from tkinter.ttk import Style, Combobox, Button, Label, Entry, Checkbutton
 from tkcalendar import DateEntry
 
@@ -239,7 +239,8 @@ class PaymentForm(Toplevel):
         self.add_payment_button = Button(master=self, text="Add Payment")
 
     def __init_checkbuttons(self) -> None:
-        self.paid_checkbutton = Checkbutton(master=self, text="Paid", onvalue=True, offvalue=False)
+        self.paid_var = BooleanVar(master=self)
+        self.paid_checkbutton = Checkbutton(master=self, text="Paid", onvalue=True, offvalue=False, variable=self.paid_var)
     
     def __set_layout(self) -> None:
         self.payment_date_label.grid(

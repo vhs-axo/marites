@@ -5,13 +5,12 @@ from views.rooms import RoomListWindow
 from controllers.controller import RoomListController
 from datetime import date
 
-def main() -> None:
-   x = RoomListWindow()
-   b = BoardingHouseManager(SessionFactory("root", "ax+vh$_jk&kr1").get_session())
-   
-   RoomListController(b, x)
-   
-   x.mainloop()
-
-if __name__ == '__main__':
-   main()
+class App:
+   def __init__(self, username: str, password: str) -> None:
+      self.manager = BoardingHouseManager(SessionFactory(username, password).get_session())
+      self.main_window = RoomListWindow()
+      
+   def start(self) -> None:
+      RoomListController(self.manager, self.main_window)
+      
+      self.main_window.mainloop()

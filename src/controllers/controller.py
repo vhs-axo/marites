@@ -50,14 +50,21 @@ class RoomListController:
         )
     
     def set_actions(self) -> None:
+        self.window.protocol("WM_DELETE_WINDOW", self.window.destroy)
+        
         self.window.add_room_button.configure(command=self.add_room_pressed)
         self.window.open_room_button.configure(command=self.open_room_pressed)
         self.window.delete_room_button.configure(command=self.delete_room_pressed)
         
-        self.window.protocol("WM_DELETE_WINDOW", self.window.destroy)
+        self.window.search_room_entry.cget("textvariable").trace_add(
+            "write", 
+            self.load_rooms
+        )
     
-    def load_rooms(self, search: str = "") -> None:
+    def load_rooms(self) -> None:
         self.window.rooms_treeview.delete(*self.window.rooms_treeview.get_children())
+        
+        search = self.window.search_room_entry.get()
         
         for room in filter(lambda r: search in str(r.room_number), self.manager.get_all_rooms()):
             self.window.rooms_treeview.insert(
@@ -71,7 +78,7 @@ class RoomListController:
             )
     
     def add_room_pressed(self) -> None:
-        RoomFormController(self, RoomForm())
+        RoomFormController(self, RoomForm(self.window))
     
     def open_room_pressed(self) -> None:
         if r := self.window.rooms_treeview.selection():
@@ -94,7 +101,7 @@ class RoomListController:
             
             if messagebox.askyesno(
                 title="Delete Room",
-                message=f"Are you sure you want to delete Room {room.room_number}?"
+                message=f"Are you sure you want to delete Room {room.room_number}?\nDoing so will also delete all records under this room, such as tenants, lease, and payments."
             ):
                 self.manager.delete_room(room)
                 messagebox.showinfo(
@@ -111,7 +118,7 @@ class RoomListController:
 class RoomFormController:
     def __init__(
         self, 
-        parent: RoomListController, 
+        parent: RoomListController | RoomOpenController, 
         window: RoomForm, 
         room: Optional[Room] = None
     ) -> None:
@@ -125,6 +132,15 @@ class RoomFormController:
         if room:
             self.room = room
             self.load_data()
+        
+        self.__set_state()
+        
+    def __set_state(self) -> None:
+        if hasattr(self, "room") and self.room:
+            self.window.add_room_button.configure(text="Save Changes")
+        
+        else:
+            self.window.add_room_button.configure(text="Add Room")
     
     def set_validations(self) -> None:
         self.window.max_capacity_entry.configure(
@@ -144,7 +160,7 @@ class RoomFormController:
     
     def set_actions(self) -> None:
         self.window.add_room_button.configure(command=self.add_room_pressed)
-        
+    
     def load_data(self) -> None:
         if self.room:
             self.window.max_capacity_entry.cget("textvariable").set(self.room.max_capacity)
@@ -153,16 +169,31 @@ class RoomFormController:
         if ((max_cap := self.window.max_capacity_entry.get()).isnumeric()) and int(max_cap) > 0:
             max_cap = int(max_cap)
             
-            room = self.parent.manager.add_room(Room(max_capacity=max_cap))
+            if hasattr(self, "room") and self.room:
+                self.room.max_capacity = max_cap
+                
+                if isinstance(self.parent, RoomOpenController):
+                    self.parent.parent.manager.update_room(self.room)
+                
+                title="Room Updated"
+                message=f"Room {self.room.room_number} has been updated to have a max of {self.room.max_capacity} occupants."
+            
+            else:
+                if isinstance(self.parent, RoomListController):
+                    room = self.parent.manager.add_room(Room(max_capacity=max_cap))
+                
+                title="Room Added"
+                message=f"Room {room.room_number} with max capacity {room.max_capacity} sucessfully added."
             
             self.window.destroy()
             
-            self.parent.load_rooms()
+            if isinstance(self.parent, RoomListController):
+                self.parent.load_rooms()
             
-            messagebox.showinfo(
-                title="Room Added",
-                message=f"Room {room.room_number} with max capacity {room.max_capacity} sucessfully added."
-            )
+            if isinstance(self.parent, RoomOpenController):
+                self.parent.load_room()
+            
+            messagebox.showinfo(title=title, message=message)
             
             del self
         
@@ -249,7 +280,7 @@ class RoomOpenController:
         self.window.payments_treeview.delete(*self.window.payments_treeview.get_children())
         
         if self.room.lease:
-            for payment in self.room.lease.payments:
+            for payment in reversed(self.room.lease.payments):
                 self.window.payments_treeview.insert(
                     "",
                     "end",
@@ -309,23 +340,31 @@ class RoomOpenController:
     
     def edit_tenant_pressed(self) -> None:
         if (s := self.window.tenants_treeview.selection()):
-            tenant_id = int(s[0])
+            tenant = self.parent.manager.get_tenant(int(s[0]))
         
-        tenant = self.parent.manager.get_tenant(tenant_id)
-        
-        TenantFormController(self, TenantForm(self.window))
+        if tenant:
+            TenantFormController(self, TenantForm(self.window), tenant)
     
     def edit_payment_pressed(self) -> None:
-        ...
+        lease = self.room.lease
+        
+        if (s := self.window.payments_treeview.selection()):
+            payment = self.parent.manager.get_payment(int(s[0]))
+            
+        if lease and payment:
+            PaymentFormController(self, PaymentForm(self.window), lease, payment)
     
     def add_tenant_pressed(self) -> None:
         TenantFormController(self, TenantForm(self.window))
         
     def add_payment_pressed(self) -> None:
-        ...
+        lease = self.room.lease
+        
+        if lease:
+            PaymentFormController(self, PaymentForm(self.window), lease)
     
     def edit_room_pressed(self) -> None:
-        ...
+        RoomFormController(self, RoomForm(self.window), self.room)
         
     def add_lease_pressed(self) -> None:
         if self.room.lease:
@@ -368,6 +407,14 @@ class TenantFormController:
         if tenant:
             self.tenant = tenant
             self.load_data()
+            
+        self.__set_state()
+    
+    def __set_state(self) -> None:
+        if hasattr(self, "tenant"):
+            self.window.add_tenant_button.configure(text="Save Changes")
+        else:
+            self.window.add_tenant_button.configure(text="Add Tenant")
     
     def set_validations(self) -> None:
         self.window.lastname_entry.configure(
@@ -562,64 +609,97 @@ class LeaseFormController:
         del self
 
 class PaymentFormController:
-    def __init__(self, parent: SomeParentController, window: PaymentForm, payment: Payment = None) -> None:
+    def __init__(
+        self, 
+        parent: RoomOpenController, 
+        window: PaymentForm, 
+        lease: Lease,
+        payment: Optional[Payment] = None
+    ) -> None:
         self.parent = parent
         self.window = window
-        self.payment = payment
-        
+        self.lease = lease
+
+        self.set_validations()
+        self.set_formatters()
         self.set_actions()
-        self.set_initial_values()
+        
+        if payment:
+            self.payment = payment
+            self.load_data
+        
+        self.__set_state()
+    
+    def __set_state(self) -> None:
+        if hasattr(self, "payment") and self.payment:
+            self.window.add_payment_button.configure(text="Save Changes")
+        else:
+            self.window.add_payment_button.configure(text="Add Payment")
+    
+    def set_formatters(self) -> None:
+        rent_var = StringVar()
+        
+        self.window.payment_amount_entry.configure(textvariable=rent_var)
+    
+    def set_validations(self) -> None:
+        self.window.payment_amount_entry.configure(
+            validate="key", 
+            validatecommand=(
+                self.window.register(lambda change: change.isdigit() or change == "" or change == "."), 
+                "%S"
+            )
+        )
     
     def set_actions(self) -> None:
+        self.window.protocol("WM_DELETE_WINDOW", self.close)
+        
         self.window.add_payment_button.configure(command=self.add_payment_pressed)
     
-    def set_initial_values(self) -> None:
+    def load_data(self) -> None:
         if self.payment:
             self.window.payment_date_entry.set_date(self.payment.payment_date)
-            self.window.payment_amount_entry.insert(0, str(self.payment.amount))
-            self.window.paid_checkbutton.select() if self.payment.paid else self.window.paid_checkbutton.deselect()
+            self.window.payment_amount_entry.cget("textvariable").set(self.payment.payment_amount)
+            self.window.paid_var.set(self.payment.paid)
     
     def add_payment_pressed(self) -> None:
-        payment_date = self.window.payment_date_entry.get_date()
-        payment_amount = self.window.payment_amount_entry.get()
-        paid = self.window.paid_checkbutton.instate(['selected'])
+        payment_date: date = self.window.payment_date_entry.get_date()
+        payment_amount: str = self.window.payment_amount_entry.get().strip()
+        paid: bool = self.window.paid_var.get()
 
-        if not payment_date or not payment_amount:
-            messagebox.showerror(
-                title="Error",
-                message="Please fill out all the required fields."
-            )
-            return
-
-        try:
-            amount = float(payment_amount)
-        except ValueError:
-            messagebox.showerror(
-                title="Invalid Amount",
-                message="The amount entered is not a valid number."
-            )
-            return
-
-        payment_data = {
-            'payment_date': payment_date,
-            'amount': amount,
-            'paid': paid
-        }
-
-        if self.payment:
-            payment = Payment(**payment_data, payment_id=self.payment.payment_id)
-            self.parent.manager.update_payment(payment)
-            messagebox.showinfo(
-                title="Payment Updated",
-                message=f"Payment {self.payment.payment_id} successfully updated."
-            )
+        if valid_amount(payment_amount):
+            if hasattr(self, "payment") and self.payment:
+                self.payment.payment_date = payment_date
+                self.payment.payment_amount = Decimal(payment_amount)
+                self.payment.paid = paid
+                
+                title = "Payment Update"
+                message = f"Payment on {self.payment.payment_date} worth {self.payment.payment_amount} has been updated successfully."
+            
+            else:
+                self.parent.parent.manager.add_payment(Payment(
+                    lease_id=self.lease.lease_id,
+                    payment_amount=payment_amount,
+                    payment_date=payment_date,
+                    paid=paid
+                ))
+                
+                title = "Payment Added"
+                message = f"Payment for {self.payment.payment_date} worth {self.payment.payment_amount} has been added successfully."
+            
+            self.parent.load_payments()
+            
+            self.window.destroy()
+            
+            messagebox.showinfo(title=title, message=message)
+            
+            del self
+            
         else:
-            payment = self.parent.manager.add_payment(Payment(**payment_data))
-            messagebox.showinfo(
-                title="Payment Added",
-                message=f"Payment {payment.payment_id} successfully added."
+            messagebox.showerror(
+                title="Payment Error",
+                message="At least on of the inputs are invalid."
             )
 
+    def close(self) -> None:
         self.window.destroy()
-        self.parent.window.deiconify()
-        self.parent.load_payments()
+        del self
