@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from decimal import Decimal
 from typing import Optional
 from datetime import date
 import re
@@ -17,6 +18,14 @@ def to_uppercase(var: StringVar) -> None:
 def valid_contact_number(contact_number: str) -> bool:
     return bool(re.match(r"^09[0-9]{9}", contact_number))
 
+def valid_amount(amount: str) -> bool:
+    try:
+        float(amount)
+    except:
+        return False
+    else:
+        return True
+
 class RoomListController:
     def __init__(
         self, 
@@ -26,9 +35,19 @@ class RoomListController:
         self.manager = manager
         self.window = window
         
+        self.set_validations()
         self.set_actions()
         
         self.load_rooms()
+    
+    def set_validations(self) -> None:
+        self.window.search_room_entry.configure(
+            validate="key", 
+            validatecommand=(
+                self.window.register(lambda change: change.isdigit() or change == ""), 
+                "%S"
+            )
+        )
     
     def set_actions(self) -> None:
         self.window.add_room_button.configure(command=self.add_room_pressed)
@@ -37,8 +56,10 @@ class RoomListController:
         
         self.window.protocol("WM_DELETE_WINDOW", self.window.destroy)
     
-    def load_rooms(self) -> None:
-        for room in self.manager.get_all_rooms():
+    def load_rooms(self, search: str = "") -> None:
+        self.window.rooms_treeview.delete(*self.window.rooms_treeview.get_children())
+        
+        for room in filter(lambda r: search in str(r.room_number), self.manager.get_all_rooms()):
             self.window.rooms_treeview.insert(
                 "",
                 "end",
@@ -88,15 +109,22 @@ class RoomListController:
         self.manager.close_session()
 
 class RoomFormController:
-    def __init__(self, parent: RoomListController, window: RoomForm, room: Optional[Room]) -> None:
+    def __init__(
+        self, 
+        parent: RoomListController, 
+        window: RoomForm, 
+        room: Optional[Room] = None
+    ) -> None:
         self.parent = parent
         self.window = window
         
-        self.set_actions()
         self.set_validations()
-    
-    def set_actions(self) -> None:
-        self.window.add_room_button.configure(command=self.add_room_pressed)
+        self.set_formatters()
+        self.set_actions()
+        
+        if room:
+            self.room = room
+            self.load_data()
     
     def set_validations(self) -> None:
         self.window.max_capacity_entry.configure(
@@ -106,6 +134,20 @@ class RoomFormController:
                 "%S"
             )
         )
+    
+    def set_formatters(self) -> None:
+        mxcap_var = StringVar()
+        
+        self.window.max_capacity_entry.configure(textvariable=mxcap_var)
+        
+        mxcap_var.trace_add("write", lambda *_: to_uppercase(mxcap_var))
+    
+    def set_actions(self) -> None:
+        self.window.add_room_button.configure(command=self.add_room_pressed)
+        
+    def load_data(self) -> None:
+        if self.room:
+            self.window.max_capacity_entry.cget("textvariable").set(self.room.max_capacity)
     
     def add_room_pressed(self) -> None:
         if ((max_cap := self.window.max_capacity_entry.get()).isnumeric()) and int(max_cap) > 0:
@@ -121,6 +163,8 @@ class RoomFormController:
                 title="Room Added",
                 message=f"Room {room.room_number} with max capacity {room.max_capacity} sucessfully added."
             )
+            
+            del self
         
         else:
             messagebox.showerror(
@@ -154,30 +198,39 @@ class RoomOpenController:
         self.window.add_tenant_button.configure(command=self.add_tenant_pressed)
         self.window.add_payment_button.configure(command=self.add_payment_pressed)
         
-        self.window.edit_room_button.configure(command=self.edit_payment_pressed)
+        self.window.edit_room_button.configure(command=self.edit_room_pressed)
         self.window.add_lease_button.configure(command=self.add_lease_pressed)
     
     def load_data(self) -> None:
+        self.load_room()
+        self.load_lease()
+        self.load_tenants()        
+        self.load_payments()        
+    
+    def load_room(self) -> None:
         self.window.room_number_label.configure(text=f"Room Number: {self.room.room_number}")
         self.window.tenant_count_label.configure(text=f"Tenant Count: {self.room.tenant_count}")
         self.window.max_capacity_label.configure(text=f"Max Capacity: {self.room.max_capacity}")
-        
-        lease = self.room.lease
-        
+    
+    def load_lease(self) -> None:
         self.window.lease_start_label.configure(
-            text=f"Lease Start: {lease.lease_start}" if lease else "Lease Start: "
+            text=f"Lease Start: {self.room.lease.lease_start}" if self.room.lease else "Lease Start: "
         )
         self.window.lease_end_label.configure(
-            text=f"Lease End: {lease.lease_start}" if lease else "Lease End: "
+            text=f"Lease End: {self.room.lease.lease_start}" if self.room.lease else "Lease End: "
         )
         self.window.lease_deposit_label.configure(
-            text=f"Deposit: {lease.deposit_amount}" if lease else "Deposit: "
+            text=f"Deposit: {self.room.lease.deposit_amount}" if self.room.lease else "Deposit: "
         )
         self.window.lease_rent_label.configure(
-            text=f"Rent: {lease.monthly_rent_mount}" if lease else "Rent: "
+            text=f"Rent: {self.room.lease.monthly_rent_mount}" if self.room.lease else "Rent: "
         )
         
-        self.window.add_lease_button.configure(text="Delete Lease" if lease else "Add Lease")
+        self.window.add_lease_button.configure(text="Delete Lease" if self.room.lease else "Add Lease")
+        self.window.add_payment_button.configure(state="normal" if self.room.lease else "disabled")
+    
+    def load_tenants(self) -> None:
+        self.window.tenants_treeview.delete(*self.window.tenants_treeview.get_children())
         
         if self.room.tenants:
             for tenant in self.room.tenants:
@@ -191,11 +244,12 @@ class RoomOpenController:
                         tenant.birth_date
                     )
                 )
-        else:
-            self.window.tenants_treeview.delete(*self.window.tenants_treeview.get_children())
+    
+    def load_payments(self) -> None:
+        self.window.payments_treeview.delete(*self.window.payments_treeview.get_children())
         
-        if lease:
-            for payment in lease.payments:
+        if self.room.lease:
+            for payment in self.room.lease.payments:
                 self.window.payments_treeview.insert(
                     "",
                     "end",
@@ -206,8 +260,6 @@ class RoomOpenController:
                         "Paid" if payment.paid else "Unpaid"
                     )
                 )
-        else:
-            self.window.payments_treeview.delete(*self.window.payments_treeview.get_children())
     
     def delete_tenant_pressed(self) -> None:
         if t := self.window.tenants_treeview.selection():
@@ -256,13 +308,18 @@ class RoomOpenController:
                 self.load_data()
     
     def edit_tenant_pressed(self) -> None:
-        ...
+        if (s := self.window.tenants_treeview.selection()):
+            tenant_id = int(s[0])
+        
+        tenant = self.parent.manager.get_tenant(tenant_id)
+        
+        TenantFormController(self, TenantForm(self.window))
     
     def edit_payment_pressed(self) -> None:
         ...
     
     def add_tenant_pressed(self) -> None:
-        ...
+        TenantFormController(self, TenantForm(self.window))
         
     def add_payment_pressed(self) -> None:
         ...
@@ -271,11 +328,28 @@ class RoomOpenController:
         ...
         
     def add_lease_pressed(self) -> None:
-        ...
+        if self.room.lease:
+            messagebox.showwarning("Delete Lease", message="You are about to delete the lease.")
+            
+            if messagebox.askyesno(
+                title="Delete Lease",
+                message=f"Are you sure you want to delete the lease?"
+            ):
+                self.parent.manager.delete_lease(self.room.lease)
+                messagebox.showinfo(
+                    title="Lease Deleted",
+                    message="Lease deleted successfully."
+                )
+                
+                self.load_lease()
+                self.load_payments()
+        else:
+            LeaseFormController(self, LeaseForm(self.window))
         
     def close(self) -> None:
         self.window.destroy()
         self.parent.window.deiconify()
+        del self
     
 class TenantFormController:
     def __init__(
@@ -342,6 +416,8 @@ class TenantFormController:
         contc_var.trace_add("write", lambda *_: to_uppercase(contc_var))
     
     def set_actions(self) -> None:
+        self.window.protocol("WM_DELETE_WINDOW", self.close)
+        
         self.window.add_tenant_button.configure(command=self.add_tenant_pressed)
         
     def load_data(self) -> None:
@@ -364,7 +440,7 @@ class TenantFormController:
         vc = valid_contact_number(contact)
         
         if vl and vf and vm and vc:
-            if self.tenant:
+            if hasattr(self, "tenant") and self.tenant:
                 self.tenant.last_name = lastname
                 self.tenant.first_name = firstname
                 self.tenant.middle_name = middlename
@@ -400,83 +476,90 @@ class TenantFormController:
                 title="Error",
                 message="At least one of the inputs are invalid."
             )
-        
+    
+    def close(self) -> None:
+        self.window.destroy()
+        del self
+    
 class LeaseFormController:
-    def __init__(self, parent: RoomOpenController, window: LeaseForm, lease: Lease = None) -> None:
+    def __init__(
+        self, 
+        parent: RoomOpenController, 
+        window: LeaseForm
+    ) -> None:
         self.parent = parent
         self.window = window
-        self.lease = lease
+        
+        self.set_validations()
+        self.set_actions()
         
         self.populate_leaser_combobox()
-        self.set_actions()
-        self.set_initial_values()
     
-    def populate_leaser_combobox(self) -> None:
-        leasers = self.parent.manager.get_all_tenants()
-        leaser_names = [f"{leaser.first_name} {leaser.last_name}" for leaser in leasers]
-        self.window.leaser_combobox["values"] = leaser_names
+    def set_validations(self) -> None:
+        self.window.deposit_entry.configure(
+            validate="key", 
+            validatecommand=(
+                self.window.register(lambda change: change.isdigit() or change == "" or change == "."), 
+                "%S"
+            )
+        )
+        self.window.rent_entry.configure(
+            validate="key", 
+            validatecommand=(
+                self.window.register(lambda change: change.isdigit() or change == "" or change == "."), 
+                "%S"
+            )
+        )
     
     def set_actions(self) -> None:
+        self.window.protocol("WM_DELETE_WINDOW", self.close)
+        
         self.window.add_lease_button.configure(command=self.add_lease_pressed)
     
-    def set_initial_values(self) -> None:
-        if self.lease:
-            self.window.leaser_combobox.set(f"{self.lease.leaser.first_name} {self.lease.leaser.last_name}")
-            self.window.startdate_entry.set_date(self.lease.lease_start)
-            self.window.enddate_entry.set_date(self.lease.lease_end)
-            self.window.deposit_entry.insert(0, str(self.lease.deposit_amount))
-            self.window.rent_entry.insert(0, str(self.lease.monthly_rentAmount))
+    def populate_leaser_combobox(self) -> None:
+        leasers = self.parent.room.tenants
+        leaser_names = (f"{leaser.tenant_id} {leaser.formatted_name}" for leaser in leasers)
+        self.window.leaser_combobox["values"] = leaser_names
     
     def add_lease_pressed(self) -> None:
-        leaser_name = self.window.leaser_combobox.get()
-        leaser_first_name, leaser_last_name = leaser_name.split(" ", 1)
-        leaser = self.parent.manager.get_tenant_by_name(leaser_first_name, leaser_last_name)
+        leaser_id: str = self.window.leaser_combobox.get().split("|")[0].strip()
+        start_date: date = self.window.startdate_entry.get_date()
+        end_date: date = self.window.enddate_entry.get_date()
+        deposit: str = self.window.deposit_entry.get().strip()
+        rent: str = self.window.rent_entry.get().strip()
         
-        if not leaser:
-            messagebox.showerror(
-                title="Leaser Not Found",
-                message="Selected leaser not found. Please select a valid leaser."
-            )
-            return
+        vl = leaser_id.isnumeric()
+        vd = valid_amount(deposit)
+        vr = valid_amount(rent)
+        ve = end_date < start_date
         
-        lease_start = self.window.startdate_entry.get_date()
-        lease_end = self.window.enddate_entry.get_date()
-        deposit_amount = self.window.deposit_entry.get()
-        monthly_rentAmount = self.window.rent_entry.get()
+        if (vl and vd and vr and ve):
+            self.parent.parent.manager.add_lease(Lease(
+                leaser_id=leaser_id,
+                room_number=self.parent.room.room_number,
+                lese_start=start_date,
+                lease_end=end_date,
+                deposit_amount=Decimal(deposit),
+                monthly_rent_amount=Decimal(rent)
+            ))
+            
+            self.parent.load_lease()
+            
+            self.window.destroy()
+            
+            messagebox.showinfo(title="Lease Added", message="Lease added successfully.")
+            
+            del self
         
-        if not (lease_start and lease_end and deposit_amount and monthly_rentAmount):
-            messagebox.showerror(
-                title="Error",
-                message="Fill out all the fields."
-            )
-            return
-        
-        lease_data = {
-            "leaser": leaser,
-            "lease_start": lease_start,
-            "lease_end": lease_end,
-            "deposit_amount": float(deposit_amount),
-            "monthly_rentAmount": float(monthly_rentAmount)
-        }
-        
-        if self.lease:
-            lease = Lease(**lease_data, lease_id=self.lease.lease_id)
-            self.parent.manager.update_lease(lease)
-            messagebox.showinfo(
-                title="Lease Updated",
-                message=f"Lease {self.lease.lease_id} successfully updated."
-            )
         else:
-            lease = self.parent.manager.add_lease(Lease(**lease_data))
-            messagebox.showinfo(
-                title="Lease Added",
-                message=f"Lease {lease.lease_id} successfully added."
+            messagebox.showerror(
+                title="Lease Adding Error", 
+                message="At least one of the inputs are invalid."
             )
-        
-        self.window.destroy()
-        self.parent.window.deiconify()
-        self.parent.load_leases()
 
+    def close(self) -> None:
+        self.window.destroy()
+        del self
 
 class PaymentFormController:
     def __init__(self, parent: SomeParentController, window: PaymentForm, payment: Payment = None) -> None:
