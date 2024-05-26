@@ -427,21 +427,21 @@ class TenantFormController:
         self.window.lastname_entry.configure(
             validate="key", 
             validatecommand=(
-                self.window.register(lambda change: change.isalpha() or change == ""), 
+                self.window.register(lambda change: change.isalpha() or change == "" or change.isspace()), 
                 "%S"
             )
         )
         self.window.firstname_entry.configure(
             validate="key", 
             validatecommand=(
-                self.window.register(lambda change: change.isalpha() or change == ""), 
+                self.window.register(lambda change: change.isalpha() or change == "" or change.isspace()), 
                 "%S"
             )
         )
         self.window.middlename_entry.configure(
             validate="key", 
             validatecommand=(
-                self.window.register(lambda change: change.isalpha() or change == ""), 
+                self.window.register(lambda change: change.isalpha() or change == "" or change.isspace()), 
                 "%S"
             )
         )
