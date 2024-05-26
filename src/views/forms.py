@@ -1,17 +1,19 @@
 from __future__ import annotations
-from tkinter import Tk, Toplevel, Event
-from tkinter.ttk import Treeview, Style, Combobox, Button, Label, Entry, Scrollbar, Checkbutton
+from tkinter import Toplevel
+from tkinter.ttk import Style, Combobox, Button, Label, Entry, Checkbutton
 from tkcalendar import DateEntry
 
-class RoomForm(Tk):
-    def __init__(self) -> None:
-        super().__init__()
+class RoomForm(Toplevel):
+    def __init__(self, master) -> None:
+        super().__init__(master=master)
         
         self.__init_labels()
         self.__init_entries()
         self.__init_buttons()
         
         self.__set_layout()
+        
+        self.grab_set()
         
     def __init_labels(self) -> None:
         self.max_capacity_label = Label(master=self, text="*Max Capacity")
@@ -41,15 +43,17 @@ class RoomForm(Tk):
         self.title("")
         self.resizable(False, False)
         
-class TenantForm(Tk):
-    def __init__(self) -> None:
-        super().__init__()
+class TenantForm(Toplevel):
+    def __init__(self, master) -> None:
+        super().__init__(master=master)
         
         self.__init_labels()
         self.__init_entries()
         self.__init_buttons()
         
         self.__set_layout()
+        
+        self.grab_set()
     
     def __init_labels(self) -> None:
         self.lastname_label = Label(master=self, text="*Last Name")
@@ -122,9 +126,9 @@ class TenantForm(Tk):
         self.title("Add Tenant")
         self.resizable(False, False)
 
-class LeaseForm(Tk):
-    def __init__(self) -> None:
-        super().__init__()
+class LeaseForm(Toplevel):
+    def __init__(self, master) -> None:
+        super().__init__(master=master)
         
         self.__init_labels()
         self.__init_entries()
@@ -132,6 +136,8 @@ class LeaseForm(Tk):
         self.__init_buttons()
         
         self.__set_layout()
+        
+        self.grab_set()
     
     def __init_labels(self) -> None:
         self.leaser_label = Label(master=self, text="*Leaser")
@@ -208,9 +214,9 @@ class LeaseForm(Tk):
         self.title("Add Lease")
         self.resizable(False, False)
 
-class PaymentForm(Tk):
-    def __init__(self) -> None:
-        super().__init__()
+class PaymentForm(Toplevel):
+    def __init__(self, master) -> None:
+        super().__init__(master=master)
         
         self.__init_labels()
         self.__init_entries()
@@ -218,6 +224,8 @@ class PaymentForm(Tk):
         self.__init_checkbuttons()
         
         self.__set_layout()
+        
+        self.grab_set()
         
     def __init_labels(self) -> None:
         self.payment_date_label = Label(master=self, text="*Payment Date")
@@ -265,10 +273,10 @@ class PaymentForm(Tk):
         self.resizable(False, False)
 
 def main() -> None:
-    RoomForm().mainloop()
-    TenantForm().mainloop()
-    LeaseForm().mainloop()
-    PaymentForm().mainloop()
+    RoomForm(None).mainloop()
+    TenantForm(None).mainloop()
+    LeaseForm(None).mainloop()
+    PaymentForm(None).mainloop()
 
 if __name__ == "__main__":
    main()
