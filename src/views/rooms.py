@@ -1,6 +1,6 @@
 from __future__ import annotations
-from tkinter import Tk, Toplevel, Event
-from tkinter.ttk import Treeview, Style, Combobox, Button, Label, Entry, Scrollbar, Separator, Frame
+from tkinter import Tk, Event
+from tkinter.ttk import Treeview, Style, Button, Label, Entry, Scrollbar, Separator, Frame
 
 def customization_buttons(
     tree: Treeview, 
@@ -131,7 +131,9 @@ class RoomListWindow(Tk):
         customization_buttons(self.rooms_treeview, self.open_room_button, self.delete_room_button)
         
         self.rooms_treeview.configure(yscrollcommand=self.rooms_scrollbar.set)
-        
+        self.rooms_treeview.column(0, width=125, stretch=False)
+        self.rooms_treeview.column(1, width=275, stretch=False)
+                
         self.title("MARITES")
         
         self.resizable(False, False)
@@ -318,6 +320,12 @@ class RoomOpenWindow(Tk):
         
         customization_buttons(self.tenants_treeview, self.edit_tenant_button, self.delete_tenant_button)
         customization_buttons(self.payments_treeview, self.edit_payment_button, self.delete_payment_button)        
+
+        for col, width in enumerate((225, 145, 230)):
+            self.tenants_treeview.column(col, width=width, stretch=False)
+            
+        for col, width in enumerate((120, 230, 250)):
+            self.payments_treeview.column(col, width=width, stretch=False)
 
         self.title("Room [Number]")
         
