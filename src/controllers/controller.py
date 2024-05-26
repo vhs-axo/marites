@@ -581,7 +581,7 @@ class LeaseFormController:
         vl = leaser_id.isnumeric()
         vd = valid_amount(deposit)
         vr = valid_amount(rent)
-        ve = end_date < start_date
+        ve = end_date > start_date
         
         if (vl and vd and vr and ve):
             self.parent.parent.manager.add_lease(Lease(
