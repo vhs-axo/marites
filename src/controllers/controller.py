@@ -568,7 +568,7 @@ class LeaseFormController:
     
     def populate_leaser_combobox(self) -> None:
         leasers = self.parent.room.tenants
-        leaser_names = [f"{leaser.tenant_id} {leaser.formatted_name}" for leaser in leasers]
+        leaser_names = [f"{leaser.tenant_id} | {leaser.formatted_name}" for leaser in leasers]
         self.window.leaser_combobox["values"] = leaser_names
     
     def add_lease_pressed(self) -> None:
