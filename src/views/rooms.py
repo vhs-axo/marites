@@ -181,6 +181,9 @@ class RoomOpenWindow(Tk):
         self.tenants_treeview.heading(column="contact_number", text="Contact Number", anchor="w")
         self.tenants_treeview.heading(column="birth_date", text="Birth Date", anchor="w")
         
+        s = Style()
+        s.configure("Treeview", rowheight=25)
+        
         self.payments_treeview = Treeview(
             master=self.lease_payment_frame,
             columns=("payment_date", "payment_amount", "status"),

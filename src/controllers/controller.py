@@ -245,6 +245,7 @@ class RoomOpenController:
         self.load_payments()        
     
     def load_room(self) -> None:
+        self.window.title(f"Room {self.room.room_number}")
         self.window.room_number_label.configure(text=f"Room Number: {self.room.room_number}")
         self.window.tenant_count_label.configure(text=f"Tenant Count: {self.room.tenant_count}")
         self.window.max_capacity_label.configure(text=f"Max Capacity: {self.room.max_capacity}")
