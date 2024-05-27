@@ -176,6 +176,13 @@ class RoomFormController:
             max_cap = int(max_cap)
             
             if hasattr(self, "room") and self.room:
+                if max_cap < self.room.tenant_count:
+                    messagebox.showerror(
+                        title="Error", 
+                        message="Tenant count is greater than the entered max capacity. Delete tenants first before changing."
+                    )
+                    return
+
                 self.room.max_capacity = max_cap
                 
                 if isinstance(self.parent, RoomOpenController):
@@ -245,6 +252,7 @@ class RoomOpenController:
         self.load_payments()        
     
     def load_room(self) -> None:
+        self.window.title(f"Room {self.room.room_number}")
         self.window.room_number_label.configure(text=f"Room Number: {self.room.room_number}")
         self.window.tenant_count_label.configure(text=f"Tenant Count: {self.room.tenant_count}")
         self.window.max_capacity_label.configure(text=f"Max Capacity: {self.room.max_capacity}")
@@ -308,11 +316,11 @@ class RoomOpenController:
             return
         
         if tenant:
-            if tenant == self.room.lease.leaser:
+            if self.room.lease and tenant == self.room.lease.leaser:
                 messagebox.showerror(title="Leaser Deletion", message="You are not allowed to delete the leaser.")
                 return
             
-            messagebox.showwarning("Delete Tenant", message="You are about to delete a room.")
+            messagebox.showwarning("Delete Tenant", message="You are about to delete a tenant.")
             
             if messagebox.askyesno(
                 title="Delete Tenant",
@@ -364,7 +372,13 @@ class RoomOpenController:
             PaymentFormController(self, PaymentForm(self.window), lease, payment)
     
     def add_tenant_pressed(self) -> None:
-        TenantFormController(self, TenantForm(self.window))
+        if self.room.tenant_count < self.room.max_capacity:
+            TenantFormController(self, TenantForm(self.window))
+        else:
+            messagebox.showinfo(
+                title="Max Capacity Reached",
+                message="You can no longer add a tenant. Max capacity reached."
+            )
         
     def add_payment_pressed(self) -> None:
         lease = self.room.lease
