@@ -4,6 +4,8 @@ from tkinter import BooleanVar, Toplevel, StringVar
 from tkinter.ttk import Style, Combobox, Button, Label, Entry, Checkbutton
 from tkcalendar import DateEntry
 
+import sv_ttk
+
 class RoomForm(Toplevel):
     def __init__(self, master) -> None:
         super().__init__(master=master)
@@ -23,7 +25,7 @@ class RoomForm(Toplevel):
         self.max_capacity_entry = Entry(master=self)
     
     def __init_buttons(self) -> None:
-        self.add_room_button = Button(master=self, text="Add Room")
+        self.add_room_button = Button(master=self, text="Add Room", style="Accent.TButton")
     
     def __set_layout(self) -> None:
         self.max_capacity_label.grid(
@@ -72,7 +74,7 @@ class TenantForm(Toplevel):
         self.birthdate_dateentry = DateEntry(master=self, date_pattern="yyyy-mm-dd")
     
     def __init_buttons(self) -> None:
-        self.add_tenant_button = Button(master=self, text="Add Tenant")
+        self.add_tenant_button = Button(master=self, text="Add Tenant", style="Accent.TButton")
     
     def __set_layout(self) -> None:
         self.lastname_label.grid(
@@ -158,7 +160,7 @@ class LeaseForm(Toplevel):
         self.leaser_combobox = Combobox(master=self)
     
     def __init_buttons(self) -> None:
-        self.add_lease_button = Button(self, text="Add Lease")
+        self.add_lease_button = Button(self, text="Add Lease", style="Accent.TButton")
     
     def __set_layout(self) -> None:
         self.leaser_label.grid(
@@ -237,7 +239,7 @@ class PaymentForm(Toplevel):
         self.payment_date_entry = DateEntry(master=self, date_pattern="yyyy-mm-dd")
     
     def __init_buttons(self) -> None:
-        self.add_payment_button = Button(master=self, text="Add Payment")
+        self.add_payment_button = Button(master=self, text="Add Payment", style="Accent.TButton")
 
     def __init_checkbuttons(self) -> None:
         self.paid_var = BooleanVar(master=self)

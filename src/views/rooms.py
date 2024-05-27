@@ -3,6 +3,8 @@ from __future__ import annotations
 from tkinter import Tk, Event
 from tkinter.ttk import Treeview, Style, Button, Label, Entry, Scrollbar, Separator, Frame
 
+import sv_ttk
+
 def customization_buttons(
     tree: Treeview, 
     edit_button: Button, 
@@ -30,8 +32,8 @@ def customization_buttons(
                 return
             
             # Show buttons
-            edit_button.place(x=tree.winfo_width() - 100, y=int(y), width=50, height=int(h))
-            delete_button.place(x=tree.winfo_width() - 50, y=int(y), width=50, height=int(h))
+            edit_button.place(x=tree.winfo_width() - 156, y=int(y), width=75, height=int(h))
+            delete_button.place(x=tree.winfo_width() - 81, y=int(y), width=75, height=int(h))
             
             
             # # Set button sizes
@@ -57,6 +59,9 @@ def customization_buttons(
     # Bind events
     tree.bind("<Motion>", show_buttons)  # Show buttons on mouse hover
     tree.bind("<Leave>", hide_buttons)
+    
+    style = Style(edit_button.master)
+    style.configure("Delete.TButton", background="red")
 
 class RoomListWindow(Tk):
     def __init__(self) -> None:
@@ -86,9 +91,6 @@ class RoomListWindow(Tk):
         
         self.rooms_treeview.heading(column="room_number", text="Room Number", anchor="w")
         self.rooms_treeview.heading(column="occupancy", text="Occupants", anchor="w")
-        
-        s = Style()
-        s.configure("Treeview", rowheight=25)
     
     def __init_scrollbars(self) -> None:
         self.rooms_scrollbar = Scrollbar(
@@ -98,9 +100,9 @@ class RoomListWindow(Tk):
         )
     
     def __init_buttons(self) -> None:
-        self.add_room_button = Button(master=self, text="Add Room")
+        self.add_room_button = Button(master=self, text="Add Room", style="Accent.TButton")
         self.open_room_button = Button(master=self.rooms_treeview, text="Open")
-        self.delete_room_button = Button(master=self.rooms_treeview, text="Delete")
+        self.delete_room_button = Button(master=self.rooms_treeview, text="Delete", style="Accent.TButton")
     
     def __set_layout(self) -> None:
         self.rowconfigure(0, weight=0, minsize=15)
@@ -116,7 +118,7 @@ class RoomListWindow(Tk):
             sticky="w", padx=(0, 120), pady=(7, 7)
         )
         self.add_room_button.grid(
-            row=0, column=3, rowspan=1, columnspan=2,
+            row=4, column=0, rowspan=1, columnspan=5,
             sticky="e", padx=(14, 7), pady=(7, 7)
         )
         
@@ -133,10 +135,17 @@ class RoomListWindow(Tk):
         
         self.rooms_treeview.configure(yscrollcommand=self.rooms_scrollbar.set)
         self.rooms_treeview.column(0, width=125, stretch=False)
-        self.rooms_treeview.column(1, width=275, stretch=False)
-                
-        self.title("MARITES")
+        self.rooms_treeview.column(1, width=350, stretch=False)
+
+        sv_ttk.set_theme("light", self)
         
+        style = Style(self)
+        
+        style.configure("Treeview", rowheight=30)
+        style.configure("Treeview.Heading", padding=(5, 0, 0, 0))
+        
+        self.title("MARITES")
+        self.eval("tk::PlaceWindow . center")
         self.resizable(False, False)
 
 class RoomOpenWindow(Tk):
@@ -181,9 +190,6 @@ class RoomOpenWindow(Tk):
         self.tenants_treeview.heading(column="contact_number", text="Contact Number", anchor="w")
         self.tenants_treeview.heading(column="birth_date", text="Birth Date", anchor="w")
         
-        s = Style()
-        s.configure("Treeview", rowheight=25)
-        
         self.payments_treeview = Treeview(
             master=self.lease_payment_frame,
             columns=("payment_date", "payment_amount", "status"),
@@ -194,9 +200,6 @@ class RoomOpenWindow(Tk):
         self.payments_treeview.heading(column="payment_date", text="Payment Date", anchor="w")
         self.payments_treeview.heading(column="payment_amount", text="Amount", anchor="w")
         self.payments_treeview.heading(column="status", text="Status", anchor="w")
-        
-        s = Style()
-        s.configure("Treeview", rowheight=25)
     
     def __init_scrollbars(self) -> None:
         self.tenants_scrollbar = Scrollbar(
@@ -213,15 +216,15 @@ class RoomOpenWindow(Tk):
     
     def __init_buttons(self) -> None:
         self.edit_room_button = Button(master=self.room_tenant_frame, text="Edit Room")
-        self.add_tenant_button = Button(master=self.room_tenant_frame, text="Add Tenant")
+        self.add_tenant_button = Button(master=self.room_tenant_frame, text="Add Tenant", style="Accent.TButton")
         self.add_lease_button = Button(master=self.lease_payment_frame, text="Add Lease")
-        self.add_payment_button = Button(master=self.lease_payment_frame, text="Add Payment")
+        self.add_payment_button = Button(master=self.lease_payment_frame, text="Add Payment", style="Accent.TButton")
         
         self.edit_tenant_button = Button(master=self.tenants_treeview, text="Edit")
-        self.delete_tenant_button = Button(master=self.tenants_treeview, text="Delete")
+        self.delete_tenant_button = Button(master=self.tenants_treeview, text="Delete", style="Accent.TButton")
         
         self.edit_payment_button = Button(master=self.payments_treeview, text="Edit")
-        self.delete_payment_button = Button(master=self.payments_treeview, text="Delete")
+        self.delete_payment_button = Button(master=self.payments_treeview, text="Delete", style="Accent.TButton")
     
     def __init_separators(self) -> None:
         self.room_tenant_separator = Separator(master=self.room_tenant_frame)
@@ -325,18 +328,21 @@ class RoomOpenWindow(Tk):
         customization_buttons(self.tenants_treeview, self.edit_tenant_button, self.delete_tenant_button)
         customization_buttons(self.payments_treeview, self.edit_payment_button, self.delete_payment_button)        
 
-        for col, width in enumerate((225, 145, 230)):
+        for col, width in enumerate((245, 107, 240)):
             self.tenants_treeview.column(col, width=width, stretch=False)
             
         for col, width in enumerate((120, 230, 250)):
             self.payments_treeview.column(col, width=width, stretch=False)
+
+        sv_ttk.set_theme("light", self)
         
-        self.style = Style(master=self)
+        style = Style(self)
         
-        self.style.configure("Treeview", rowheight=25)
+        style.configure("Treeview", rowheight=30)
+        style.configure("Treeview.Heading", padding=(5, 0, 0, 0))
 
         self.title("Room [Number]")
-        
+        self.eval("tk::PlaceWindow . center")
         self.resizable(False, False)
    
 def main() -> None:

@@ -11,4 +11,5 @@ class App:
    def start(self) -> None:
       RoomListController(self.manager, self.main_window)
       
+      self.main_window.eval("tk::PlaceWindow . center")
       self.main_window.mainloop()
