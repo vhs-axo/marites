@@ -120,6 +120,8 @@ class RoomListController:
     def close(self) -> None:
         self.window.destroy()
         self.manager.close_session()
+        
+        del self
 
 class RoomFormController:
     def __init__(
@@ -158,16 +160,16 @@ class RoomFormController:
         )
     
     def set_formatters(self) -> None:
-        mxcap_var = StringVar()
+        self.mxcap_var = StringVar(master=self.window)
         
-        self.window.max_capacity_entry.configure(textvariable=mxcap_var)
+        self.window.max_capacity_entry.configure(textvariable=self.mxcap_var)
     
     def set_actions(self) -> None:
         self.window.add_room_button.configure(command=self.add_room_pressed)
     
     def load_data(self) -> None:
         if self.room:
-            self.window.max_capacity_entry.insert(0, str(self.room.max_capacity))
+            self.mxcap_var.set(str(self.room.max_capacity))
     
     def add_room_pressed(self) -> None:
         if ((max_cap := self.window.max_capacity_entry.get()).isnumeric()) and int(max_cap) > 0:
@@ -395,6 +397,7 @@ class RoomOpenController:
     def close(self) -> None:
         self.window.destroy()
         self.parent.window.deiconify()
+        self.parent.load_rooms()
         del self
     
 class TenantFormController:
@@ -454,30 +457,30 @@ class TenantFormController:
         )
     
     def set_formatters(self) -> None:
-        lname_var = StringVar()
-        fname_var = StringVar()
-        mname_var = StringVar()
-        contc_var = StringVar()
+        self.lname_var = StringVar(master=self.window)
+        self.fname_var = StringVar(master=self.window)
+        self.mname_var = StringVar(master=self.window)
+        self.contc_var = StringVar(master=self.window)
         
-        self.window.lastname_entry.configure(textvariable=lname_var)
-        self.window.firstname_entry.configure(textvariable=fname_var)
-        self.window.middlename_entry.configure(textvariable=mname_var)
-        self.window.contactnumber_entry.configure(textvariable=contc_var)
-        
-        lname_var.trace_add("write", lambda *_: to_uppercase(lname_var))
-        fname_var.trace_add("write", lambda *_: to_uppercase(fname_var))
-        mname_var.trace_add("write", lambda *_: to_uppercase(mname_var))
+        self.window.lastname_entry.configure(textvariable=self.lname_var)
+        self.window.firstname_entry.configure(textvariable=self.fname_var)
+        self.window.middlename_entry.configure(textvariable=self.mname_var)
+        self.window.contactnumber_entry.configure(textvariable=self.contc_var)
     
     def set_actions(self) -> None:
         self.window.protocol("WM_DELETE_WINDOW", self.close)
         
         self.window.add_tenant_button.configure(command=self.add_tenant_pressed)
         
+        self.lname_var.trace_add("write", lambda *_: to_uppercase(self.lname_var))
+        self.fname_var.trace_add("write", lambda *_: to_uppercase(self.fname_var))
+        self.mname_var.trace_add("write", lambda *_: to_uppercase(self.mname_var))
+        
     def load_data(self) -> None:
-        self.window.lastname_entry.insert(0, self.tenant.last_name)
-        self.window.firstname_entry.insert(0, self.tenant.first_name)
-        self.window.middlename_entry.insert(0, self.tenant.middle_name)
-        self.window.contactnumber_entry.insert(0, self.tenant.contact_number)
+        self.lname_var.set(self.tenant.last_name)
+        self.fname_var.set(self.tenant.first_name)
+        self.mname_var.set(self.tenant.middle_name)
+        self.contc_var.set(self.tenant.contact_number)
         self.window.birthdate_dateentry.set_date(self.tenant.birth_date)
     
     def add_tenant_pressed(self) -> None:
@@ -632,7 +635,7 @@ class PaymentFormController:
         
         if payment:
             self.payment = payment
-            self.load_data
+            self.load_data()
         
         self.__set_state()
     
@@ -643,9 +646,9 @@ class PaymentFormController:
             self.window.add_payment_button.configure(text="Add Payment")
     
     def set_formatters(self) -> None:
-        rent_var = StringVar()
+        self.rent_var = StringVar(master=self.window)
         
-        self.window.payment_amount_entry.configure(textvariable=rent_var)
+        self.window.payment_amount_entry.configure(textvariable=self.rent_var)
     
     def set_validations(self) -> None:
         self.window.payment_amount_entry.configure(
@@ -664,7 +667,7 @@ class PaymentFormController:
     def load_data(self) -> None:
         if self.payment:
             self.window.payment_date_entry.set_date(self.payment.payment_date)
-            self.window.payment_amount_entry.insert(0, str(self.payment.payment_amount))
+            self.rent_var.set(str(self.payment.payment_amount))
             self.window.paid_var.set(self.payment.paid)
     
     def add_payment_pressed(self) -> None:
