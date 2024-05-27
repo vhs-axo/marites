@@ -330,6 +330,10 @@ class RoomOpenWindow(Tk):
             
         for col, width in enumerate((120, 230, 250)):
             self.payments_treeview.column(col, width=width, stretch=False)
+        
+        self.style = Style(master=self)
+        
+        self.style.configure("Treeview", rowheight=25)
 
         self.title("Room [Number]")
         
