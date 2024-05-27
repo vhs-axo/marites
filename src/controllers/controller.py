@@ -5,7 +5,10 @@ from typing import Optional
 from datetime import date
 from re import match
 
-from src.views.forms import RoomForm, TenantForm, LeaseForm, PaymentForm
+from sqlalchemy.exc import OperationalError
+
+from src.services.service import SessionFactory
+from src.views.forms import RoomForm, TenantForm, LeaseForm, PaymentForm, LoginForm
 from src.views.rooms import RoomListWindow, RoomOpenWindow
 from src.models.entities import Room, Tenant, Lease, Payment
 from src.managers.manager import BoardingHouseManager
@@ -25,6 +28,61 @@ def valid_amount(amount: str) -> bool:
         return False
     else:
         return True
+
+class LoginFormController:
+    def __init__(self, window: LoginForm) -> None:
+        self.window = window
+        
+        self.__set_formatters()
+        self.__set_actions()
+    
+    def __set_formatters(self) -> None:
+        self.un_var = StringVar(master=self.window)
+        self.pw_var = StringVar(master=self.window)
+        
+        self.window.username_entry.configure(textvariable=self.un_var)
+        self.window.password_entry.configure(textvariable=self.pw_var)
+    
+    def __set_actions(self) -> None:
+        self.window.protocol("WM_DELETE_WINDOW", self.close)
+        
+        self.window.login_button.configure(command=self.login_pressed)
+        
+    def login_pressed(self) -> None:
+        username = self.un_var.get()
+        password = self.pw_var.get()
+        
+        try:
+            self.session = SessionFactory(username, password).get_session()
+        
+        except OperationalError as err:
+            print(err)
+            
+            messagebox.showerror(
+                title="Login Failed",
+                message="Username and/or password not recognized."
+            )
+            
+            self.un_var.set("")
+            self.pw_var.set("")
+        
+        else:
+            RoomListController(
+                BoardingHouseManager(self.session),
+                RoomListWindow()
+            )
+            
+            self.window.destroy()
+            
+            del self
+    
+    def close(self) -> None:
+        self.window.destroy()
+        
+        if hasattr(self, "session"):
+            self.session.close()
+        
+        del self
 
 class RoomListController:
     def __init__(
@@ -56,7 +114,7 @@ class RoomListController:
         )
     
     def set_actions(self) -> None:
-        self.window.protocol("WM_DELETE_WINDOW", self.window.destroy)
+        self.window.protocol("WM_DELETE_WINDOW", self.close)
         
         self.window.add_room_button.configure(command=self.add_room_pressed)
         self.window.open_room_button.configure(command=self.open_room_pressed)

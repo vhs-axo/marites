@@ -1,15 +1,12 @@
-from src.managers.manager import BoardingHouseManager
-from src.services.service import SessionFactory
-from src.views.rooms import RoomListWindow
-from src.controllers.controller import RoomListController
+from src.views.forms import LoginForm
+from src.controllers.controller import LoginFormController
 
 class App:
-   def __init__(self, username: str, password: str) -> None:
-      self.manager = BoardingHouseManager(SessionFactory(username, password).get_session())
-      self.main_window = RoomListWindow()
+   def __init__(self) -> None:
+      self.main_window = LoginForm()
       
    def start(self) -> None:
-      RoomListController(self.manager, self.main_window)
+      LoginFormController(self.main_window)
       
       self.main_window.eval("tk::PlaceWindow . center")
       self.main_window.mainloop()

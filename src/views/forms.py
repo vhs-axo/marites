@@ -1,10 +1,61 @@
 from __future__ import annotations
 
-from tkinter import BooleanVar, Toplevel, StringVar
+from tkinter import BooleanVar, Toplevel, StringVar, Tk
 from tkinter.ttk import Style, Combobox, Button, Label, Entry, Checkbutton
 from tkcalendar import DateEntry
 
 import sv_ttk
+
+class LoginForm(Tk):
+    def __init__(self) -> None:
+        super().__init__()
+        
+        self.__init_labels()
+        self.__init_entries()
+        self.__init_buttons()
+        
+        self.__set_layout()
+    
+    def __init_labels(self) -> None:
+        self.username_label = Label(master=self, text="Username")
+        self.password_label = Label(master=self, text="Password")
+    
+    def __init_entries(self) -> None:
+        self.username_entry = Entry(master=self)
+        self.password_entry = Entry(master=self, show="*")
+    
+    def __init_buttons(self) -> None:
+        self.login_button = Button(master=self, text="Login", style="Accent.TButton")
+    
+    def __set_layout(self) -> None:
+        self.username_label.grid(
+            row=0, column=0, rowspan=1, columnspan=1,
+            sticky="sw", padx=7, pady=(14, 0)
+        )
+        self.username_entry.grid(
+            row=1, column=0, rowspan=1, columnspan=3,
+            sticky="nsew", padx=7, pady=(0, 7)
+        )
+        
+        self.password_label.grid(
+            row=2, column=0, rowspan=1, columnspan=1,
+            sticky="sw", padx=7, pady=(7, 0)
+        )
+        self.password_entry.grid(
+            row=3, column=0, rowspan=1, columnspan=3,
+            sticky="nsew", padx=7, pady=(0, 7)
+        )
+        
+        self.login_button.grid(
+            row=4, column=2, rowspan=1, columnspan=1,
+            sticky="nsew", padx=7, pady=(7, 14)
+        )
+        
+        sv_ttk.set_theme("light", self)
+        
+        self.title("Login")
+        self.eval("tk::PlaceWindow . center")
+        self.resizable(False, False)
 
 class RoomForm(Toplevel):
     def __init__(self, master) -> None:

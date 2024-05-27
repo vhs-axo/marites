@@ -1,7 +1,7 @@
 from src.app.app import App
 
 def main() -> None:
-   App("root", "ax+vh$_jk&kr1").start()
+   App().start()
 
 if __name__ == '__main__':
    main()
