@@ -306,8 +306,8 @@ class RoomFormController:
         
         else:
             messagebox.showerror(
-                title="Invalid Max Capacity",
-                message="Max capacity entered is invalid."
+                title="Invalid Entries",
+                message="At least one of the inputs entered are invalid. Room Number & Max Capacity cannot be less than 1."
             )
 
 class RoomOpenController:
