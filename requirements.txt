@@ -1,0 +1,12 @@
+mysql-connector-python==8.3.0
+page==0.2
+PyMySQL==1.1.1
+sip==6.8.2
+packaging==23.2
+setuptools==69.0.3
+SQLAlchemy==2.0.30
+greenlet==3.0.3
+typing_extensions==4.11.0
+sv-ttk==2.6.0
+tkcalendar==1.6.1
+Babel==2.15.0
