@@ -12,7 +12,7 @@ DROP TABLE IF EXISTS `payments`;
 
 -- Create rooms table
 CREATE TABLE `rooms` (
-    `roomNumber` INT UNSIGNED AUTO_INCREMENT,
+    `roomNumber` INT UNSIGNED NOT NULL,
     `maxCapacity` INT UNSIGNED NOT NULL,
     `tenantCount` INT UNSIGNED NOT NULL DEFAULT 0,
     

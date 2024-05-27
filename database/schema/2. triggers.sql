@@ -35,22 +35,3 @@ FOR EACH ROW
     UPDATE `rooms` 
     SET `tenantCount` = `tenantCount` - 1
     WHERE `rooms`.`roomNumber` = OLD.`roomNumber`;
-
--- Trigger to set paymentAmount in payments table
-DROP TRIGGER IF EXISTS `setpaymentAmount_beforeInsert`;
-DELIMITER //
-CREATE TRIGGER `setpaymentAmount_beforeInsert`
-BEFORE INSERT ON `payments`
-FOR EACH ROW
-BEGIN
-    DECLARE `rentAmount` DECIMAL(10, 2);
-
-    -- Fetch the monthlyRentAmount from the leases table
-    SELECT `monthlyRentAmount` INTO `rentAmount`
-    FROM `leases`
-    WHERE `leaseId` = NEW.`leaseId`;
-
-    -- Set the payAmount to the fetched monthlyRentAmount
-    SET NEW.`paymentAmount` = `rentAmount`;
-END; //
-DELIMITER ;
