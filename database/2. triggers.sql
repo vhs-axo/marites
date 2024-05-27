@@ -54,14 +54,3 @@ BEGIN
     SET NEW.`paymentAmount` = `rentAmount`;
 END; //
 DELIMITER ;
-
--- Trigger to automatically set tenant names to uppercase
-DROP TRIGGER IF EXISTS `tenantNames_toUpperCase_afterInsert`;
-CREATE TRIGGER `tenantNames_toUpperCase_afterInsert`
-AFTER INSERT ON `tenants`
-FOR EACH ROW
-	UPDATE `tenants`
-    SET `lastName` = UPPER(NEW.`lastName`),
-        `firstName` = UPPER(NEW.`firstName`),
-        `middleName` = UPPER(NEW.`middleName`)
-    WHERE `tenantId` = NEW.`tenantId`;
