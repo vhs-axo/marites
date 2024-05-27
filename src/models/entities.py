@@ -65,7 +65,7 @@ class Tenant(Base):
         return f"Tenant: {self.tenant_id} in Room {self.room_number} | {self.formatted_name} | {self.birth_date} | {self.contact_number}"
     
     def __repr__(self) -> str:
-        return f"Tenant(tenant_id={self.room_number}, last_name={self.last_name!r}, first_name={self.first_name!r}, middle_name={self.middle_name!r}, birth_date={self.birth_date!r}, contact_number={self.contact_number!r}, room_number={self.room_number})"
+        return f"Tenant(tenant_id={self.tenant_id}, last_name={self.last_name!r}, first_name={self.first_name!r}, middle_name={self.middle_name!r}, birth_date={self.birth_date!r}, contact_number={self.contact_number!r}, room_number={self.room_number})"
 
 class Lease(Base):
     __tablename__ = 'leases'
