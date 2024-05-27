@@ -10,3 +10,6 @@ typing_extensions==4.11.0
 sv-ttk==2.6.0
 tkcalendar==1.6.1
 Babel==2.15.0
+cryptography==42.0.7
+cffi==1.16.0
+pycparser==2.22
