@@ -356,7 +356,7 @@ class RoomOpenController:
             text=f"Lease Start: {self.room.lease.lease_start}" if self.room.lease else "Lease Start: "
         )
         self.window.lease_end_label.configure(
-            text=f"Lease End: {self.room.lease.lease_start}" if self.room.lease else "Lease End: "
+            text=f"Lease End: {self.room.lease.lease_end}" if self.room.lease else "Lease End: "
         )
         self.window.lease_deposit_label.configure(
             text=f"Deposit: {self.room.lease.deposit_amount}" if self.room.lease else "Deposit: "
