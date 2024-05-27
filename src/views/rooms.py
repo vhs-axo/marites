@@ -173,7 +173,8 @@ class RoomOpenWindow(Tk):
         self.lease_rent_label = Label(master=self.lease_payment_frame, text="Rent: [Amount]")
         self.leaser_label = Label(master=self.lease_payment_frame, text="Leaser: [Name]")
         
-        self.filler_label = Label(master=self.room_tenant_frame, text=" ")
+        self.filler1_label = Label(master=self.room_tenant_frame, text=" ")
+        self.filler2_label = Label(master=self.room_tenant_frame, text=" ")
     
     def __init_treeviews(self) -> None:
         self.tenants_treeview = Treeview(
@@ -252,31 +253,35 @@ class RoomOpenWindow(Tk):
             row=2, column=0, rowspan=1, columnspan=1,
             sticky="w", padx=7, pady=0
         )
-        self.filler_label.grid(
+        self.filler1_label.grid(
             row=3, column=0, rowspan=1, columnspan=1,
+            sticky="w", padx=7, pady=(0, 0)
+        )
+        self.filler2_label.grid(
+            row=4, column=0, rowspan=1, columnspan=1,
             sticky="w", padx=7, pady=(0, 7)
         )
         self.edit_room_button.grid(
-            row=4, column=0, rowspan=1, columnspan=1,
+            row=5, column=0, rowspan=1, columnspan=1,
             sticky="w", padx=7, pady=(0, 7)
         )
         
         self.room_tenant_separator.grid(
-            row=5, column=0, rowspan=1, columnspan=2,
+            row=6, column=0, rowspan=1, columnspan=2,
             sticky="ew", padx=(7, 7), pady=(0, 7)
         )
         
         self.tenants_treeview.grid(
-            row=6, column=0, rowspan=1, columnspan=1,
+            row=7, column=0, rowspan=1, columnspan=1,
             sticky="nsew", padx=(7, 0), pady=(0, 7)
         )
         self.tenants_scrollbar.grid(
-            row=6, column=1, rowspan=1, columnspan=1,
+            row=7, column=1, rowspan=1, columnspan=1,
             sticky="nsew", padx=(0, 7), pady=(0, 7)
         )
         
         self.add_tenant_button.grid(
-            row=7, column=0, rowspan=1, columnspan=2,
+            row=8, column=0, rowspan=1, columnspan=2,
             sticky="nsew", padx=(7, 7), pady=(0, 7)
         )
         
@@ -292,30 +297,34 @@ class RoomOpenWindow(Tk):
             row=2, column=0, rowspan=1, columnspan=1,
             sticky="w", padx=7, pady=0
         )
-        self.leaser_label.grid(
+        self.lease_rent_label.grid(
             row=3, column=0, rowspan=1, columnspan=1,
+            sticky="w", padx=7, pady=0
+        )
+        self.leaser_label.grid(
+            row=4, column=0, rowspan=1, columnspan=1,
             sticky="w", padx=7, pady=(0, 7)
         )
         self.add_lease_button.grid(
-            row=4, column=0, rowspan=1, columnspan=1,
+            row=5, column=0, rowspan=1, columnspan=1,
             sticky="w", padx=7, pady=(0, 7)
         )
         
         self.lease_payment_separator.grid(
-            row=5, column=0, rowspan=1, columnspan=2,
+            row=6, column=0, rowspan=1, columnspan=2,
             sticky="nsew", padx=(7, 7), pady=(0, 7)
         )
         
         self.payments_treeview.grid(
-            row=6, column=0, rowspan=1, columnspan=1,
+            row=7, column=0, rowspan=1, columnspan=1,
             sticky="nsew", padx=(7, 0), pady=(0, 7)
         )
         self.payments_scrollbar.grid(
-            row=6, column=1, rowspan=1, columnspan=1,
+            row=7, column=1, rowspan=1, columnspan=1,
             sticky="nsew", padx=(0, 7), pady=(0, 7)
         )
         self.add_payment_button.grid(
-            row=7, column=0, rowspan=1, columnspan=2,
+            row=8, column=0, rowspan=1, columnspan=2,
             sticky="nsew", padx=(7, 7), pady=(0, 7)
         )
         
