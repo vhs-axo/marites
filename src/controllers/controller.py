@@ -100,7 +100,7 @@ class RoomListController:
         self.load_rooms()
   
     def set_formatters(self) -> None:
-        self.search_var = StringVar()
+        self.search_var = StringVar(master=self.window)
         
         self.window.search_room_entry.configure(textvariable=self.search_var)
 
@@ -128,9 +128,10 @@ class RoomListController:
     def load_rooms(self) -> None:
         self.window.rooms_treeview.delete(*self.window.rooms_treeview.get_children())
         
-        search = self.window.search_room_entry.get()
-        
-        for room in filter(lambda r: search in str(r.room_number), self.manager.get_all_rooms()):
+        for room in filter(
+            lambda r: self.search_var.get() in str(r.room_number), 
+            self.manager.get_all_rooms()
+        ):
             self.window.rooms_treeview.insert(
                 "",
                 "end",
@@ -209,6 +210,13 @@ class RoomFormController:
             self.window.add_room_button.configure(text="Add Room")
     
     def set_validations(self) -> None:
+        self.window.room_number_entry.configure(
+            validate="key", 
+            validatecommand=(
+                self.window.register(lambda change: change.isdigit() or change == ""), 
+                "%S"
+            )
+        )
         self.window.max_capacity_entry.configure(
             validate="key", 
             validatecommand=(
@@ -218,8 +226,10 @@ class RoomFormController:
         )
     
     def set_formatters(self) -> None:
+        self.rmnum_var = StringVar(master=self.window)
         self.mxcap_var = StringVar(master=self.window)
         
+        self.window.room_number_entry.configure(textvariable=self.rmnum_var)
         self.window.max_capacity_entry.configure(textvariable=self.mxcap_var)
     
     def set_actions(self) -> None:
@@ -227,11 +237,34 @@ class RoomFormController:
     
     def load_data(self) -> None:
         if self.room:
+            self.rmnum_var.set(str(self.room.room_number))
             self.mxcap_var.set(str(self.room.max_capacity))
+            
+            self.window.room_number_entry.configure(state="disabled")
     
     def add_room_pressed(self) -> None:
-        if ((max_cap := self.window.max_capacity_entry.get()).isnumeric()) and int(max_cap) > 0:
+        room_num = self.rmnum_var.get()
+        max_cap = self.mxcap_var.get()
+        
+        vr = room_num.isnumeric() and int(room_num) > 0
+        vm = max_cap.isnumeric() and int(max_cap) > 0
+        
+        if vr and vm:
+            room_num = int(room_num)
             max_cap = int(max_cap)
+            
+            if isinstance(self.parent, RoomListController):
+                existing_room = self.parent.manager.get_room(room_num)
+            
+            if isinstance(self.parent, RoomOpenController):
+                existing_room = self.parent.parent.manager.get_room(room_num)
+            
+            if existing_room:
+                messagebox.showerror(
+                    title="Duplicate Room",
+                    message=f"A room with the room number {room_num} already exists."
+                )
+                return
             
             if hasattr(self, "room") and self.room:
                 if max_cap < self.room.tenant_count:
@@ -251,7 +284,10 @@ class RoomFormController:
             
             else:
                 if isinstance(self.parent, RoomListController):
-                    room = self.parent.manager.add_room(Room(max_capacity=max_cap))
+                    room = self.parent.manager.add_room(Room(
+                        room_number=room_num,
+                        max_capacity=max_cap
+                    ))
                 
                 title="Room Added"
                 message=f"Room {room.room_number} with max capacity {room.max_capacity} sucessfully added."

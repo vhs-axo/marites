@@ -14,7 +14,7 @@ from src.models.base import Base
 class Room(Base):
     __tablename__ = "rooms"
     
-    room_number: Mapped[int] = mapped_column("roomNumber", INTEGER(unsigned=True), primary_key=True, autoincrement=True)
+    room_number: Mapped[int] = mapped_column("roomNumber", INTEGER(unsigned=True), primary_key=True, nullable=False)
     max_capacity: Mapped[int] = mapped_column("maxCapacity", INTEGER(unsigned=True), nullable=False)
     tenant_count: Mapped[int] = mapped_column("tenantCount", INTEGER(unsigned=True), nullable=False, default=0)
     

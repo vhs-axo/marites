@@ -70,22 +70,32 @@ class RoomForm(Toplevel):
         self.grab_set()
         
     def __init_labels(self) -> None:
+        self.room_number_label = Label(master=self, text="*Room Number")
         self.max_capacity_label = Label(master=self, text="*Max Capacity")
     
     def __init_entries(self) -> None:
+        self.room_number_entry = Entry(master=self)
         self.max_capacity_entry = Entry(master=self)
     
     def __init_buttons(self) -> None:
         self.add_room_button = Button(master=self, text="Add Room", style="Accent.TButton")
     
     def __set_layout(self) -> None:
-        self.max_capacity_label.grid(
+        self.room_number_label.grid(
             row=0, column=0, rowspan=1, columnspan=1,
+            sticky="sw", padx=7, pady=(7, 0)
+        )
+        self.max_capacity_label.grid(
+            row=0, column=1, rowspan=1, columnspan=1,
             sticky="sw", padx=(7, 7), pady=(7, 0)
         )
         
+        self.room_number_entry.grid(
+            row=1, column=0, rowspan=1, columnspan=1,
+            sticky="nsew", padx=7, pady=(0, 7)
+        )
         self.max_capacity_entry.grid(
-            row=1, column=0, rowspan=1, columnspan=2,
+            row=1, column=1, rowspan=1, columnspan=1,
             sticky="nsew", padx=(7, 7), pady=(0, 7)
         )
         
@@ -94,7 +104,7 @@ class RoomForm(Toplevel):
             sticky="e", padx=(7, 7), pady=(7, 7)
         )
         
-        self.title("")
+        self.title("Add Room")
         self.resizable(False, False)
         
 class TenantForm(Toplevel):

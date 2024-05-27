@@ -59,9 +59,6 @@ def customization_buttons(
     # Bind events
     tree.bind("<Motion>", show_buttons)  # Show buttons on mouse hover
     tree.bind("<Leave>", hide_buttons)
-    
-    style = Style(edit_button.master)
-    style.configure("Delete.TButton", background="red")
 
 class RoomListWindow(Tk):
     def __init__(self) -> None:
