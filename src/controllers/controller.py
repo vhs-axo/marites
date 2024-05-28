@@ -386,18 +386,17 @@ class RoomOpenController:
     def load_payments(self) -> None:
         self.window.payments_treeview.delete(*self.window.payments_treeview.get_children())
         
-        if self.room.lease:
-            for payment in reversed(self.room.lease.payments):
-                self.window.payments_treeview.insert(
-                    "",
-                    "end",
-                    payment.payment_id,
-                    values=(
-                        payment.payment_date,
-                        payment.payment_amount,
-                        "Paid" if payment.paid else "Unpaid"
-                    )
+        for payment in reversed(self.room.payments):
+            self.window.payments_treeview.insert(
+                "",
+                "end",
+                payment.payment_id,
+                values=(
+                    payment.payment_date,
+                    payment.payment_amount,
+                    "Paid" if payment.paid else "Unpaid"
                 )
+            )
     
     def delete_tenant_pressed(self) -> None:
         if t := self.window.tenants_treeview.selection():
@@ -453,13 +452,11 @@ class RoomOpenController:
             TenantFormController(self, TenantForm(self.window), tenant)
     
     def edit_payment_pressed(self) -> None:
-        lease = self.room.lease
-        
         if (s := self.window.payments_treeview.selection()):
             payment = self.parent.manager.get_payment(int(s[0]))
             
-        if lease and payment:
-            PaymentFormController(self, PaymentForm(self.window), lease, payment)
+        if payment:
+            PaymentFormController(self, PaymentForm(self.window), self.room, payment)
     
     def add_tenant_pressed(self) -> None:
         if self.room.tenant_count < self.room.max_capacity:
@@ -471,10 +468,7 @@ class RoomOpenController:
             )
         
     def add_payment_pressed(self) -> None:
-        lease = self.room.lease
-        
-        if lease:
-            PaymentFormController(self, PaymentForm(self.window), lease)
+        PaymentFormController(self, PaymentForm(self.window), self.room)
     
     def edit_room_pressed(self) -> None:
         RoomFormController(self, RoomForm(self.window), self.room)
@@ -726,12 +720,12 @@ class PaymentFormController:
         self, 
         parent: RoomOpenController, 
         window: PaymentForm, 
-        lease: Lease,
+        room: Room,
         payment: Optional[Payment] = None
     ) -> None:
         self.parent = parent
         self.window = window
-        self.lease = lease
+        self.room = room
 
         self.set_validations()
         self.set_formatters()
@@ -746,8 +740,10 @@ class PaymentFormController:
     def __set_state(self) -> None:
         if hasattr(self, "payment") and self.payment:
             self.window.add_payment_button.configure(text="Save Changes")
+            self.window.title("Edit Payment")
         else:
             self.window.add_payment_button.configure(text="Add Payment")
+            self.window.title("Add Payment")
     
     def set_formatters(self) -> None:
         self.rent_var = StringVar(master=self.window)
@@ -792,7 +788,8 @@ class PaymentFormController:
             
             else:
                 payment = self.parent.parent.manager.add_payment(Payment(
-                    lease_id=self.lease.lease_id,
+                    leaser_id=self.room.lease.leaser_id,
+                    room_number=self.room.room_number,
                     payment_amount=payment_amount,
                     payment_date=payment_date,
                     paid=paid

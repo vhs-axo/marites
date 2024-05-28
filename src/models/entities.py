@@ -24,6 +24,7 @@ class Room(Base):
     
     tenants: Mapped[list[Tenant]] = relationship("Tenant", back_populates="room")
     lease: Mapped[Lease] = relationship("Lease", back_populates="room")
+    payments: Mapped[list[Payment]] = relationship("Payment", back_populates="room")
 
     def __eq__(self, other: Room) -> bool:
         return self.room_number == other.room_number
@@ -57,6 +58,7 @@ class Tenant(Base):
     
     room: Mapped[Room] = relationship("Room", back_populates="tenants")
     lease: Mapped[Lease] = relationship("Lease", back_populates="leaser")
+    payments: Mapped[list[Payment]] = relationship("Payment", back_populates="leaser")
 
     def __eq__(self, other: Tenant) -> bool:
         return self.tenant_id == other.tenant_id
@@ -88,7 +90,6 @@ class Lease(Base):
     
     leaser: Mapped[Tenant] = relationship("Tenant", back_populates="lease")
     room: Mapped[Room] = relationship("Room", back_populates="lease")
-    payments: Mapped[list[Payment]] = relationship("Payment", back_populates="lease")
 
     def __eq__(self, other: Lease) -> bool:
         return self.lease_id == other.lease_id
@@ -97,17 +98,19 @@ class Payment(Base):
     __tablename__ = 'payments'
     
     payment_id: Mapped[int] = mapped_column("paymentId", INTEGER(unsigned=True), primary_key=True, autoincrement=True)
-    lease_id: Mapped[int] = mapped_column("leaseId", INTEGER(unsigned=True), ForeignKey('leases.leaseId', onupdate='CASCADE', ondelete='CASCADE'), nullable=False)
+    room_number: Mapped[int] = mapped_column("roomNumber", INTEGER(unsigned=True), ForeignKey('rooms.roomNumber', onupdate='CASCADE', ondelete='CASCADE'), nullable=False)
+    leaser_id: Mapped[int] = mapped_column("leaserId", INTEGER(unsigned=True), ForeignKey('tenants.tenantId', onupdate='CASCADE', ondelete='CASCADE'), nullable=False)
     payment_amount: Mapped[Decimal] = mapped_column("paymentAmount", DECIMAL(10, 2), nullable=False)
     payment_date: Mapped[date] = mapped_column("paymentDate", DATE, nullable=False)
     paid: Mapped[bool] = mapped_column("paid", BOOLEAN, nullable=False)
     
     __table_args__ = (
-        UniqueConstraint('leaseId', 'paymentDate', name='uq_paymentDate_leaseId'),
-        Index('ix_leaseId', 'leaseId'),
+        Index('ix_leaserId', 'leaserId'),
+        Index('ix_roomNumber', 'roomNumber'),
     )
     
-    lease: Mapped[Lease] = relationship("Lease", back_populates="payments")
+    room: Mapped[Room] = relationship("Room", back_populates="payments")
+    leaser: Mapped[Tenant] = relationship("Tenant", back_populates="payments")
 
     def __eq__(self, other: Payment) -> bool:
         return self.payment_id == other.payment_id
