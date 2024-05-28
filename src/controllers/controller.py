@@ -785,6 +785,8 @@ class PaymentFormController:
                 self.payment.payment_amount = Decimal(payment_amount)
                 self.payment.paid = paid
                 
+                self.parent.parent.manager.update_payment(self.payment)
+                
                 title = "Payment Update"
                 message = f"Payment on {self.payment.payment_date} worth {self.payment.payment_amount} has been updated successfully."
             
