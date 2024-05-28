@@ -73,17 +73,21 @@ CREATE TABLE `leases` (
 -- Create payments table
 CREATE TABLE `payments` (
     `paymentId` INT UNSIGNED AUTO_INCREMENT,
-    `leaseId` INT UNSIGNED NOT NULL,
+    `leaserId` INT UNSIGNED NOT NULL,
+    `roomNumber` INT UNSIGNED NOT NULL,
     `paymentAmount` DECIMAL(10, 2) NOT NULL,
     `paymentDate` DATE NOT NULL,
     `paid` BOOLEAN NOT NULL,
     
     PRIMARY KEY (`paymentId`),
-    CONSTRAINT `fk_payments_leases_leaseId`
-        FOREIGN KEY (`leaseId`)
-        REFERENCES `leases` (`leaseId`)
+    CONSTRAINT `fk_payments_leases_leaserId`
+        FOREIGN KEY (`leaserId`)
+        REFERENCES `tenants` (`tenantId`)
         ON UPDATE CASCADE ON DELETE CASCADE,
-	CONSTRAINT `uq_paymentDate_leaseId`
-		UNIQUE (`leaseId`, `paymentDate`),
-    INDEX (`leaseId`)
+	CONSTRAINT `fk_payments_leases_roomNumber`
+        FOREIGN KEY (`roomNumber`)
+        REFERENCES `rooms` (`roomNumber`)
+        ON UPDATE CASCADE ON DELETE CASCADE,
+    INDEX (`leaserId`),
+    INDEX (`roomNumber`)
 );
