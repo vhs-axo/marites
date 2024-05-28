@@ -253,19 +253,6 @@ class RoomFormController:
             room_num = int(room_num)
             max_cap = int(max_cap)
             
-            if isinstance(self.parent, RoomListController):
-                existing_room = self.parent.manager.get_room(room_num)
-            
-            if isinstance(self.parent, RoomOpenController):
-                existing_room = self.parent.parent.manager.get_room(room_num)
-            
-            if existing_room:
-                messagebox.showerror(
-                    title="Duplicate Room",
-                    message=f"A room with the room number {room_num} already exists."
-                )
-                return
-            
             if hasattr(self, "room") and self.room:
                 if max_cap < self.room.tenant_count:
                     messagebox.showerror(
@@ -284,6 +271,15 @@ class RoomFormController:
             
             else:
                 if isinstance(self.parent, RoomListController):
+                    existing_room = self.parent.manager.get_room(room_num)
+                    
+                    if existing_room:
+                        messagebox.showerror(
+                            title="Duplicate Room",
+                            message=f"A room with the room number {room_num} already exists."
+                        )
+                        return
+                    
                     room = self.parent.manager.add_room(Room(
                         room_number=room_num,
                         max_capacity=max_cap
