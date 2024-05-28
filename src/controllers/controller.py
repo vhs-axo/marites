@@ -354,9 +354,6 @@ class RoomOpenController:
         self.window.lease_end_label.configure(
             text=f"Lease End: {self.room.lease.lease_end}" if self.room.lease else "Lease End: "
         )
-        self.window.lease_deposit_label.configure(
-            text=f"Deposit: {self.room.lease.deposit_amount}" if self.room.lease else "Deposit: "
-        )
         self.window.lease_rent_label.configure(
             text=f"Rent: {self.room.lease.monthly_rent_amount}" if self.room.lease else "Rent: "
         )
@@ -650,13 +647,6 @@ class LeaseFormController:
         self.populate_leaser_combobox()
     
     def set_validations(self) -> None:
-        self.window.deposit_entry.configure(
-            validate="key", 
-            validatecommand=(
-                self.window.register(lambda change: change.isdigit() or change == "" or change == "."), 
-                "%S"
-            )
-        )
         self.window.rent_entry.configure(
             validate="key", 
             validatecommand=(
@@ -671,29 +661,28 @@ class LeaseFormController:
         self.window.add_lease_button.configure(command=self.add_lease_pressed)
     
     def populate_leaser_combobox(self) -> None:
-        leasers = self.parent.room.tenants
-        leaser_names = [f"{leaser.tenant_id} | {leaser.formatted_name}" for leaser in leasers]
-        self.window.leaser_combobox["values"] = leaser_names
+        leaser_names = (
+            f"{leaser.tenant_id} | {leaser.formatted_name}" 
+            for leaser in self.parent.room.tenants
+        )
+        self.window.leaser_combobox["values"] = list(leaser_names)
     
     def add_lease_pressed(self) -> None:
         leaser_id: str = self.window.leaser_combobox.get().split("|")[0].strip()
         start_date: date = self.window.startdate_entry.get_date()
         end_date: date = self.window.enddate_entry.get_date()
-        deposit: str = self.window.deposit_entry.get().strip()
         rent: str = self.window.rent_entry.get().strip()
         
         vl = leaser_id.isnumeric()
-        vd = valid_amount(deposit)
         vr = valid_amount(rent)
         ve = end_date > start_date
         
-        if (vl and vd and vr and ve):
+        if (vl and vr and ve):
             self.parent.parent.manager.add_lease(Lease(
                 leaser_id=leaser_id,
                 room_number=self.parent.room.room_number,
                 lease_start=start_date,
                 lease_end=end_date,
-                deposit_amount=Decimal(deposit),
                 monthly_rent_amount=Decimal(rent)
             ))
             

@@ -77,7 +77,6 @@ class Lease(Base):
     room_number: Mapped[int] = mapped_column("roomNumber", INTEGER(unsigned=True), ForeignKey('rooms.roomNumber', onupdate='CASCADE', ondelete='CASCADE'), nullable=False)
     lease_start: Mapped[date] = mapped_column("leaseStart", DATE, nullable=False)
     lease_end: Mapped[date] = mapped_column("leaseEnd", DATE, nullable=False)
-    deposit_amount: Mapped[Decimal] = mapped_column("depositAmount", DECIMAL(10, 2), nullable=False)
     monthly_rent_amount: Mapped[Decimal] = mapped_column("monthlyRentAmount", DECIMAL(10, 2), nullable=False)
     
     __table_args__ = (

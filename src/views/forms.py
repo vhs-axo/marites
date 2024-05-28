@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from tkinter import BooleanVar, Toplevel, StringVar, Tk
-from tkinter.ttk import Style, Combobox, Button, Label, Entry, Checkbutton
+from tkinter import BooleanVar, Toplevel, Tk
+from tkinter.ttk import Combobox, Button, Label, Entry, Checkbutton
 from tkcalendar import DateEntry
 
 import sv_ttk
@@ -207,18 +207,16 @@ class LeaseForm(Toplevel):
         self.leaser_label = Label(master=self, text="*Leaser")
         self.startdate_label = Label(master=self, text="*Lease Start Date")
         self.enddate_label = Label(master=self, text="*Lease End Date")
-        self.deposit_label = Label(master=self, text="*Deposit Amount")
         self.rent_label = Label(master=self, text="*Monthly Rent Amount")
     
     def __init_entries(self) -> None:
-        self.deposit_entry = Entry(master=self)
         self.rent_entry = Entry(master=self)
         
         self.startdate_entry = DateEntry(master=self, date_pattern="yyyy-mm-dd")
         self.enddate_entry = DateEntry(master=self, date_pattern="yyyy-mm-dd")
     
     def __init_comboboxes(self) -> None:
-        self.leaser_combobox = Combobox(master=self)
+        self.leaser_combobox = Combobox(master=self, state="readonly")
     
     def __init_buttons(self) -> None:
         self.add_lease_button = Button(self, text="Add Lease", style="Accent.TButton")
@@ -252,21 +250,13 @@ class LeaseForm(Toplevel):
             sticky="nsew", padx=(7, 7), pady=(0, 7)
         )
         
-        self.deposit_label.grid(
+        self.rent_label.grid(
             row=4, column=0, rowspan=1, columnspan=1,
             sticky="sw", padx=(7, 7), pady=(7, 0)
         )
-        self.rent_label.grid(
-            row=4, column=1, rowspan=1, columnspan=1,
-            sticky="sw", padx=(7, 7), pady=(7, 0)
-        )
         
-        self.deposit_entry.grid(
-            row=5, column=0, rowspan=1, columnspan=1,
-            sticky="nsew", padx=(7, 7), pady=(0, 7)
-        )
         self.rent_entry.grid(
-            row=5, column=1, rowspan=1, columnspan=1,
+            row=5, column=0, rowspan=1, columnspan=2,
             sticky="nsew", padx=(7, 7), pady=(0, 7)
         )
         
