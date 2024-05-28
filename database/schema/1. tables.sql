@@ -48,7 +48,6 @@ CREATE TABLE `leases` (
     `roomNumber` INT UNSIGNED NOT NULL,
     `leaseStart` DATE NOT NULL,
     `leaseEnd` DATE NOT NULL,
-    `depositAmount` DECIMAL(10, 2) NOT NULL,
     `monthlyRentAmount` DECIMAL(10, 2) NOT NULL,
     
     PRIMARY KEY (`leaseId`),
