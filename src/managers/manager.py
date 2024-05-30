@@ -44,10 +44,20 @@ class BoardingHouseManager:
         self.session.commit()
     
     def delete_room(self, room: Room) -> None:
+        if room.lease:
+            self.session.delete(room.lease)
+        for payment in room.payments:
+            self.session.delete(payment)
+        for tenant in room.tenants:
+            self.session.delete(tenant)
         self.session.delete(room)
         self.session.commit()
     
     def delete_tenant(self, tenant: Tenant) -> None:
+        if tenant.lease:
+            self.session.delete(tenant.lease)
+        for payment in tenant.payments:
+            self.session.delete(payment)
         self.session.delete(tenant)
         self.session.commit()
         
