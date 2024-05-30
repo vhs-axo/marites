@@ -674,7 +674,7 @@ class LeaseFormController:
         rent: str = self.window.rent_entry.get().strip()
         
         vl = leaser_id.isnumeric()
-        vr = valid_amount(rent)
+        vr = valid_amount(rent) and len(rent) <= 10
         ve = end_date > start_date
         
         if (vl and vr and ve):
@@ -764,7 +764,7 @@ class PaymentFormController:
         payment_amount: str = self.window.payment_amount_entry.get().strip()
         paid: bool = self.window.paid_var.get()
 
-        if valid_amount(payment_amount):
+        if valid_amount(payment_amount) and len(payment_amount) <= 10:
             if hasattr(self, "payment") and self.payment:
                 self.payment.payment_date = payment_date
                 self.payment.payment_amount = Decimal(payment_amount)
