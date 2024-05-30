@@ -472,20 +472,26 @@ class RoomOpenController:
         
     def add_lease_pressed(self) -> None:
         if self.room.lease:
-            messagebox.showwarning("Delete Lease", message="You are about to delete the lease.")
-            
-            if messagebox.askyesno(
-                title="Delete Lease",
-                message=f"Are you sure you want to delete the lease?"
-            ):
-                self.parent.manager.delete_lease(self.room.lease)
-                messagebox.showinfo(
-                    title="Lease Deleted",
-                    message="Lease deleted successfully."
-                )
+            if len(self.room.payments) == 0:
+                messagebox.showwarning("Delete Lease", message="You are about to delete the lease.")
                 
-                self.load_lease()
-                self.load_payments()
+                if messagebox.askyesno(
+                    title="Delete Lease",
+                    message=f"Are you sure you want to delete the lease?"
+                ):
+                    self.parent.manager.delete_lease(self.room.lease)
+                    messagebox.showinfo(
+                        title="Lease Deleted",
+                        message="Lease deleted successfully."
+                    )
+                    
+                    self.load_lease()
+                    self.load_payments()
+            else:
+                messagebox.showerror(
+                    title="Error Deleting Lease",
+                    message="Payments for this room must first be cleared before adding a new lease."
+                )
         else:
             LeaseFormController(self, LeaseForm(self.window))
         
